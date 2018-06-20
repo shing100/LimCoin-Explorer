@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import Header from "Component/Header";
+import Header from "Components/Header";
 import Home from "Routes/Home";
 import Blocks from "Routes/Blocks";
 import Transactions from "Routes/Transactions";
