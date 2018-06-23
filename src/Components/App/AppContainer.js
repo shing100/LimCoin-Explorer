@@ -5,6 +5,7 @@ import axios from "axios";
 import reset from "styled-reset";
 import typography from "../../typography";
 import { API_URL } from "../../constants";
+import flatten from "lodash.flatten";
 
 const baseStyles = () => injectGlobal`
     ${reset};
@@ -29,8 +30,11 @@ class AppContainer extends Component {
     const request = await axios.get(`${API_URL}/blocks`);
     //console.log(request);
     const blocks = request.data;
+    const reversedBlocks = blocks.reverse();
+    const txs = flatten(reversedBlocks.map(block => block.data));
     this.setState({
-      blocks,
+      blocks: reversedBlocks,
+      transactions: txs,
       isLoading: false
     });
   }
