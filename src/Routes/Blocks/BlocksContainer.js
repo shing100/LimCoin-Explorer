@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 class BlocksContainer extends Component {
   render() {
-    return <BlocksPresenter />;
+    return <BlocksPresenter {...this.props}/>;
   }
 }
 
