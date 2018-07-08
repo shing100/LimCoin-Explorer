@@ -4,8 +4,9 @@ import AppPresenter from "./AppPresenter";
 import axios from "axios";
 import reset from "styled-reset";
 import typography from "../../typography";
-import { API_URL } from "../../constants";
+import { API_URL, WS_USL } from "../../constants";
 import flatten from "lodash.flatten";
+import { parseMessage } from "../../utils";
 
 const baseStyles = () => injectGlobal`
     ${reset};
@@ -21,6 +22,7 @@ class AppContainer extends Component {
   };
   componentDidMount = () => {
     this._getData();
+    this._connectToWs();
   }
   render() {
     baseStyles();
@@ -37,7 +39,22 @@ class AppContainer extends Component {
       transactions: txs,
       isLoading: false
     });
-  }
+  };
+  _connectToWs = () => {
+    const ws = new WebSocket(WS_USL);
+    ws.addEventListener("message", message => {
+      const parsedMessage = parseMessage(message);
+      if(parsedMessage !== null && parsedMessage !== undefined){
+        this.setState(prevState => {
+          return {
+            ...prevState,
+            blocks: [...parsedMessage, ...prevState.blocks],
+            transactions: [...parsedMessage[0].data, ...prevState.transactions]
+          }
+        })
+      }
+    });
+  };
 }
 
 export default AppContainer;
