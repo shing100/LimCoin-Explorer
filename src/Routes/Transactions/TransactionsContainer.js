@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 class TransactionsContainer extends Component {
   render() {
-    return <TransactionsPresenter />;
+    return <TransactionsPresenter {...this.props} />;
   }
 }
 
