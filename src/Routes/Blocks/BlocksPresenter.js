@@ -12,7 +12,7 @@ const TableContainer = styled.div`
 const BlocksPresenter = ( { blocks, transactions } ) => (
   <Fragment>
     <TableContainer>
-      <h2>Latest Blocks</h2>
+      <h2>Blocks</h2>
       <CardBoard>
         <BlocksHeader />
         {blocks.map((block, index) => (
