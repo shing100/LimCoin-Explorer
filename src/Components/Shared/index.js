@@ -1,5 +1,6 @@
 import {
   Card,
+  CardBoard,
   Header,
   BlocksHeader,
   Cell,
@@ -8,4 +9,4 @@ import {
   TxRow
 } from "./Shared";
 
-export { Card, Header, BlocksHeader, Cell, BlocksRow, TxHeader, TxRow };
+export { Card, CardBoard, Header, BlocksHeader, Cell, BlocksRow, TxHeader, TxRow };

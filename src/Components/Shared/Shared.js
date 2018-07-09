@@ -14,6 +14,19 @@ export const Card = styled.div`
   }
   `;
 
+export const CardBoard = styled.div`
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  width: 100%;
+  min-height: 75vh;
+  margin-bottom: 50px;
+  box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0,0,0,0.08);
+  &:last-child {
+    margin-bottom: 0;
+  }
+  `;
+
 export const Header = styled.div`
   font-weight: 600;
   `;

@@ -38,12 +38,14 @@ const AppPresenter = ({ isLoading, transactions, blocks }) => (
                />
              )}
              />
-            <Route exact path={`/blocks`} render={() =>
-               <Blocks blocks={blocks} />}
-               />
-            <Route exact path={`/transactions`} render={() =>
-              <Transactions transactions={ transactions }/>}
-              />
+            <Route exact path={`/blocks`} render={() => (
+               <Blocks blocks={ blocks.slice(0, 15) } />
+             )}
+            />
+            <Route exact path={`/transactions`} render={() => (
+              <Transactions transactions={ transactions.slice(0, 15) }/>
+            )}
+            />
           </Switch>
         </Main>
       )}

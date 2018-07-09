@@ -42,18 +42,23 @@ class AppContainer extends Component {
   };
   _connectToWs = () => {
     const ws = new WebSocket(WS_USL);
-    ws.addEventListener("message", message => {
-      const parsedMessage = parseMessage(message);
-      if(parsedMessage !== null && parsedMessage !== undefined){
-        this.setState(prevState => {
-          return {
-            ...prevState,
-            blocks: [...parsedMessage, ...prevState.blocks],
-            transactions: [...parsedMessage[0].data, ...prevState.transactions]
-          }
-        })
-      }
-    });
+    try{
+      ws.addEventListener("message", message => {
+        const parsedMessage = parseMessage(message);
+        if(parsedMessage !== null && parsedMessage !== undefined){
+          this.setState(prevState => {
+            return {
+              ...prevState,
+              blocks: [...parsedMessage, ...prevState.blocks],
+              transactions: [...parsedMessage[0].data, ...prevState.transactions]
+            }
+          })
+        }
+      });
+    }catch(e){
+      console.log(e);
+      ws.close();
+    }
   };
 }
 
