@@ -34,7 +34,7 @@ bulit in React LimCoin explorer
 Server 에서 Block , Transaction을 받아오는 Class
 
 ```javascript
-    class AppContainer extends Component {
+class AppContainer extends Component {
     state = {
         isLoading: true
     };
@@ -78,5 +78,5 @@ Server 에서 Block , Transaction을 받아오는 Class
             ws.close();
         }
     };
-    }
+}
 ```
