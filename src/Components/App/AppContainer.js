@@ -1,50 +1,79 @@
 import React, { Component } from "react";
 import AppPresenter from "./AppPresenter";
-import axios from "axios";
 import baseStyles from "../../globalStyles";
-import { API_URL, WS_URL } from "../../constants";
+import { WS_URL } from "../../constants";
+import { getBlocks, getInfo } from "../../api";
 import { parseMessage } from "../../utils";
 
 baseStyles();
+
+// 한 페이지에 보여 줄 블록 수. 홈은 이 중 앞의 몇 개만 쓴다.
+const PAGE_SIZE = 25;
 
 class AppContainer extends Component {
   state = {
     isLoading: true,
     error: null,
-    blocks: []
+    blocks: [],
+    info: null,
+    page: 0,
+    total: 0
   };
+
   componentDidMount = () => {
     this._getData();
     this._connectToWs();
-  }
+  };
+
   componentWillUnmount = () => {
     if (this.ws) {
       this.ws.close();
       this.ws = null;
     }
-  }
+    this.unmounted = true;
+  };
+
   render() {
-    return <AppPresenter {...this.state} />;
+    return (
+      <AppPresenter
+        {...this.state}
+        pageSize={PAGE_SIZE}
+        onPage={this._goToPage}
+      />
+    );
   }
-  _getData = async() => {
+
+  _getData = async (page = 0) => {
     try {
-      const request = await axios.get(`${API_URL}/blocks`);
-      // reverse() 는 원본을 뒤집으므로 복사본을 만든다
-      this.setState({
-        blocks: [...request.data].reverse(),
-        isLoading: false,
-        error: null
-      });
+      /*
+       * 통계는 /info 에서 받는다. 예전에는 체인 전체를 받아 프론트에서
+       * 세고 있었는데, 노드가 이제 최신순 한 페이지씩만 주므로 그럴 수 없다.
+       */
+      const [info, { blocks, total }] = await Promise.all([
+        getInfo(),
+        getBlocks(PAGE_SIZE, page * PAGE_SIZE)
+      ]);
+      if (this.unmounted) {
+        return;
+      }
+      this.setState({ info, blocks, total, page, isLoading: false, error: null });
     } catch (e) {
-      // 예전에는 여기서 그냥 reject 되어 isLoading 이 true 로 굳었고,
-      // 노드가 꺼져 있으면 화면이 영원히 비어 있었다.
+      if (this.unmounted) {
+        return;
+      }
       console.error(e);
       this.setState({
         isLoading: false,
-        error: `LimCoin 노드(${API_URL})에 연결할 수 없습니다.`
+        error: "LimCoin 노드에 연결할 수 없습니다."
       });
     }
   };
+
+  _goToPage = page => {
+    this.setState({ isLoading: true });
+    this._getData(page);
+  };
+
   _connectToWs = () => {
     let ws;
     try {
@@ -56,21 +85,35 @@ class AppContainer extends Component {
     this.ws = ws;
 
     ws.addEventListener("error", e => console.error("WebSocket error", e));
-    ws.addEventListener("close", () => { this.ws = null; });
+    ws.addEventListener("close", () => {
+      this.ws = null;
+    });
     ws.addEventListener("message", message => {
       const newBlocks = parseMessage(message);
-      // 이미 알고 있는 블록이 되돌아오는 경우가 있어 index 로 중복을 걸러 낸다.
       if (!Array.isArray(newBlocks) || newBlocks.length === 0) {
         return;
       }
-      this.setState(prevState => {
-        const known = new Set(prevState.blocks.map(block => block.index));
+      // 첫 페이지를 보고 있을 때만 실시간으로 끼워 넣는다.
+      // 뒤쪽 페이지를 보는 중에 목록이 밀리면 읽는 사람이 혼란스럽다.
+      if (this.state.page !== 0) {
+        this.setState(prev => ({ total: prev.total + newBlocks.length }));
+        return;
+      }
+      this.setState(prev => {
+        const known = new Set(prev.blocks.map(block => block.index));
         const fresh = newBlocks.filter(block => !known.has(block.index));
         if (fresh.length === 0) {
           return null;
         }
-        return { blocks: [...fresh, ...prevState.blocks] };
+        return {
+          blocks: [...fresh, ...prev.blocks].slice(0, PAGE_SIZE),
+          total: prev.total + fresh.length
+        };
       });
+      // 통계는 새로 받아 온다
+      getInfo()
+        .then(info => !this.unmounted && this.setState({ info }))
+        .catch(() => {});
     });
   };
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styled, { css } from "styled-components";
 import { radius, mono, breakpoint } from "../../theme";
 import { formatLim } from "../../units";
@@ -79,6 +80,11 @@ export const BodyRow = styled(Row)`
   &:hover { background: var(--surfaceSunken); }
 `;
 
+// 행 전체가 상세 페이지로 가는 링크가 된다
+export const LinkRow = BodyRow.withComponent(Link).extend`
+  color: inherit;
+`;
+
 export const Cell = styled.span`
   min-width: 0;
   overflow: hidden;
@@ -144,12 +150,12 @@ export const BlocksHeader = () => (
 );
 
 export const BlocksRow = ({ index, hash, timestamp, difficulty }) => (
-  <BodyRow layout="blocks">
+  <LinkRow layout="blocks" to={`/block/${hash}`}>
     <Index>{index}</Index>
     <Hash title={hash}>{hash}</Hash>
     <Time hideBelow="md">{timestamp}</Time>
     <Num hideBelow="sm">{difficulty}</Num>
-  </BodyRow>
+  </LinkRow>
 );
 
 export const TxHeader = () => (
@@ -164,11 +170,101 @@ export const TxHeader = () => (
 
 // fee 가 null 이면 입력을 되짚지 못한 경우(코인베이스 등)다.
 export const TxRow = ({ timestamp, id, insOuts, amount, fee }) => (
-  <BodyRow layout="txs">
+  <LinkRow layout="txs" to={`/tx/${id}`}>
     <Num>{formatLim(amount)}</Num>
     <Fee hideBelow="sm">{fee === null ? "—" : formatLim(fee)}</Fee>
     <Hash title={id}>{id}</Hash>
     <Cell hideBelow="sm">{insOuts}</Cell>
     <Time hideBelow="md">{timestamp}</Time>
-  </BodyRow>
+  </LinkRow>
 );
+
+
+/* ----------------------------------------------- 상세 페이지 공용 */
+
+export const Back = styled(Link)`
+  display: inline-block;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--textMuted);
+  &:hover { color: var(--accent); }
+`;
+
+// 키-값을 나열하는 상세 표
+export const Detail = styled.dl`
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 0;
+  margin: 0;
+
+  @media (max-width: ${breakpoint.sm}) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const DKey = styled.dt`
+  padding: 11px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--textMuted);
+  border-bottom: 1px solid var(--border);
+
+  @media (max-width: ${breakpoint.sm}) {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+`;
+
+export const DValue = styled.dd`
+  min-width: 0;
+  margin: 0;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+  ${props => props.mono && `font-family: ${mono}; font-size: 12.5px;`}
+`;
+
+export const MonoLink = styled(Link)`
+  font-family: ${mono};
+  font-size: 12.5px;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+  &:hover { text-decoration: underline; }
+`;
+
+export const Pill = styled.span`
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--accentSoft);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+`;
+
+export const Pager = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--textMuted);
+`;
+
+export const PagerButton = styled.button`
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: ${radius.sm};
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  &:disabled { opacity: .4; cursor: not-allowed; }
+`;

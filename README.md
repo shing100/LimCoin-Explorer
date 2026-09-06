@@ -44,27 +44,48 @@ REACT_APP_API_URL=http://localhost:4001 REACT_APP_WS_URL=ws://localhost:4001 yar
 
 ## 기능
 
-LimCoin 의 Block 과 Transaction 을 볼 수 있다.
+| 경로 | |
+|---|---|
+| `/` | 요약 통계 + 최근 블록/트랜잭션 |
+| `/blocks` | 블록 목록 (페이지네이션) |
+| `/transactions` | 트랜잭션 목록 |
+| `/block/:hash` | 블록 상세 — 머클 루트, nonce, 담긴 트랜잭션 |
+| `/tx/:id` | 트랜잭션 상세 — 입출력, **머클 증명** |
+| `/address/:address` | 주소 잔액 |
 
-`AppContainer` 가 노드에서 데이터를 한 번 받아 오고(`GET /blocks`),
-이후에는 WebSocket 으로 새 블록을 받아 화면을 갱신한다.
+목록의 행을 누르면 상세로 간다. 헤더의 검색창에 **블록 높이 · 64자 해시 ·
+주소** 중 아무거나 넣으면 노드가 판별해 알맞은 페이지로 보낸다.
 
-- 트랜잭션에는 시간 정보가 없으므로, 담고 있는 블록의 timestamp 를 붙여서 보여 준다.
-- WebSocket 으로 이미 알고 있는 블록이 되돌아오는 경우가 있어 index 로 중복을 거른다.
-- 노드에 붙지 못하면 로딩 상태로 굳지 않고 에러 메시지를 띄운다.
+트랜잭션 상세에는 백서 8장의 **머클 증명**을 그대로 보여 준다. 블록 전체
+대신 log₂(n) 개 해시로 그 트랜잭션이 블록에 담겼음을 확인할 수 있다.
+
+### 데이터 흐름
+
+`AppContainer` 가 목록 한 페이지(`GET /blocks?limit&offset`)와 통계
+(`GET /info`)를 받아 온다. 이후 새 블록은 WebSocket 으로 들어온다.
+
+- **통계는 `/info` 에서 받는다.** 예전에는 체인 전체를 받아 프론트에서
+  셌는데, 노드가 이제 최신순 한 페이지씩만 준다.
+- 첫 페이지를 보고 있을 때만 새 블록을 실시간으로 끼워 넣는다.
+  뒤쪽 페이지를 읽는 중에 목록이 밀리면 혼란스럽기 때문이다.
+- 이미 알고 있는 블록이 되돌아오는 경우가 있어 index 로 중복을 거른다.
+- 노드에 붙지 못하면 로딩 상태로 굳지 않고 이유를 띄운다.
 
 ```
 src/
   Components/
     App/        데이터 로딩 + 라우팅
-    Header/     네비게이션
-    Shared/     테이블 셀 등 공용 컴포넌트
+    Header/     네비게이션 + 검색
+    Search/     검색창
+    Shared/     표·상세 공용 컴포넌트
+    Stats/      요약 타일
   Routes/
-    Home/           최근 블록 5개 + 트랜잭션 5개
-    Blocks/         블록 15개
-    Transactions/   트랜잭션 15개
-  constants.js  API / WebSocket 주소
-  utils.js      날짜 포맷, WebSocket 메시지 파싱
+    Home/ Blocks/ Transactions/     목록
+    Block/ Transaction/ Address/    상세
+  api.js        노드 공개 API 호출
+  search.js     검색어 해석
+  txinfo.js     블록에서 트랜잭션 파생 (시간, 수수료)
+  units.js      LIM 단위 변환
 ```
 
 > `NODE_PATH=src` (`.env`) 덕분에 `Components/...` 처럼 절대경로로 import 한다.
