@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Link, NavLink } from "react-router-dom";
 import { breakpoint } from "../../theme";
+import Search from "Components/Search";
 
 const Bar = styled.header`
   width: 100%;
@@ -14,11 +15,18 @@ const Inner = styled.div`
   width: 100%;
   margin: 0 auto;
   padding: 0 20px;
-  height: 62px;
+  min-height: 62px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 0;
+
+  @media (max-width: ${breakpoint.md}) {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
 `;
 
 const Brand = styled(Link)`
@@ -80,6 +88,7 @@ const HeaderPresenter = () => (
         <Coin>L</Coin>
         LimCoin
       </Brand>
+      <Search />
       <Nav>
         <NavItem exact to="/" activeClassName="active">
           Home
