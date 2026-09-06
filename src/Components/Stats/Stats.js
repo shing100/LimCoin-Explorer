@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { radius, breakpoint } from "../../theme";
+import { formatLim } from "../../units";
 
 const Grid = styled.div`
   display: grid;
@@ -62,7 +63,7 @@ const Stats = ({ height, txCount, difficulty, supply }) => (
     <Tile>
       <Key>총 발행량</Key>
       <Value>
-        {supply.toLocaleString()}
+        {formatLim(supply)}
         <Unit>LIM</Unit>
       </Value>
     </Tile>

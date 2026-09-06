@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { radius, mono, breakpoint } from "../../theme";
+import { formatLim } from "../../units";
 
 export const Card = styled.div`
   background: var(--surface);
@@ -42,12 +43,12 @@ const layouts = {
     }
   `,
   txs: css`
-    grid-template-columns: 90px minmax(0, 1fr) 88px 190px;
+    grid-template-columns: 110px 100px minmax(0, 1fr) 76px 170px;
     @media (max-width: ${breakpoint.md}) {
-      grid-template-columns: 80px minmax(0, 1fr) 78px;
+      grid-template-columns: 100px 90px minmax(0, 1fr) 70px;
     }
     @media (max-width: ${breakpoint.sm}) {
-      grid-template-columns: 72px minmax(0, 1fr);
+      grid-template-columns: 92px minmax(0, 1fr);
     }
   `
 };
@@ -115,6 +116,13 @@ export const Num = styled(Cell)`
   font-weight: 600;
 `;
 
+// 수수료는 대개 0 이라 본문보다 흐리게 둔다
+export const Fee = styled(Cell)`
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  color: var(--textFaint);
+`;
+
 export const Time = styled(Cell)`
   font-size: 12.5px;
   color: var(--textFaint);
@@ -147,15 +155,18 @@ export const BlocksRow = ({ index, hash, timestamp, difficulty }) => (
 export const TxHeader = () => (
   <HeadRow layout="txs">
     <Cell>Amount</Cell>
+    <Cell hideBelow="sm">Fee</Cell>
     <Cell>ID</Cell>
     <Cell hideBelow="sm">Ins/Outs</Cell>
     <Cell hideBelow="md">Timestamp</Cell>
   </HeadRow>
 );
 
-export const TxRow = ({ timestamp, id, insOuts, amount }) => (
+// fee 가 null 이면 입력을 되짚지 못한 경우(코인베이스 등)다.
+export const TxRow = ({ timestamp, id, insOuts, amount, fee }) => (
   <BodyRow layout="txs">
-    <Num>{amount} LIM</Num>
+    <Num>{formatLim(amount)}</Num>
+    <Fee hideBelow="sm">{fee === null ? "—" : formatLim(fee)}</Fee>
     <Hash title={id}>{id}</Hash>
     <Cell hideBelow="sm">{insOuts}</Cell>
     <Time hideBelow="md">{timestamp}</Time>

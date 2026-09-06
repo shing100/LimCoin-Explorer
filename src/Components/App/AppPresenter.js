@@ -7,6 +7,7 @@ import Home from "Routes/Home";
 import Blocks from "Routes/Blocks";
 import Transactions from "Routes/Transactions";
 import { radius } from "../../theme";
+import { enrichTransactions } from "../../txinfo";
 
 const Shell = styled.div`
   min-height: 100vh;
@@ -32,16 +33,30 @@ const Message = styled.p`
   border-radius: ${radius.md};
 `;
 
-// 총 발행량은 코인베이스만 있으므로 블록 수 x 보상으로 계산해도 되지만,
-// 보상이 바뀔 수 있으니 실제 코인베이스 출력을 더한다.
+/*
+ * 총 발행량.
+ *
+ * 반감기가 생겨 블록마다 보상이 다르고, 코인베이스는 보조금에 더해 그 블록에
+ * 담긴 수수료도 가져간다. 수수료는 이미 유통 중이던 코인이 옮겨 간 것이므로
+ * 새로 발행된 양이 아니다. 따라서 코인베이스 지급액에서 수수료를 빼야 한다.
+ */
 const computeStats = (blocks, transactions) => {
   const newest = blocks.length > 0 ? blocks[0] : null;
+
+  const feeByBlock = new Map();
+  transactions.forEach(tx => {
+    if (tx.fee !== null) {
+      feeByBlock.set(tx.blockIndex, (feeByBlock.get(tx.blockIndex) || 0) + tx.fee);
+    }
+  });
+
   const supply = blocks.reduce((total, block) => {
     const coinbase = (block.data || [])[0];
     if (!coinbase) {
       return total;
     }
-    return total + coinbase.txOuts.reduce((sum, out) => sum + out.amount, 0);
+    const paid = coinbase.txOuts.reduce((sum, out) => sum + out.amount, 0);
+    return total + paid - (feeByBlock.get(block.index) || 0);
   }, 0);
 
   return {
@@ -52,7 +67,11 @@ const computeStats = (blocks, transactions) => {
   };
 };
 
-const AppPresenter = ({ isLoading, error, transactions, blocks }) => (
+const AppPresenter = ({ isLoading, error, blocks }) => {
+  // 수수료 계산에는 체인 전체가 필요하므로 여기서 한 번에 파생시킨다
+  const transactions = enrichTransactions(blocks);
+
+  return (
   <BrowserRouter>
     <Shell>
       <Header />
@@ -90,12 +109,12 @@ const AppPresenter = ({ isLoading, error, transactions, blocks }) => (
       </Main>
     </Shell>
   </BrowserRouter>
-);
+  );
+};
 
 AppPresenter.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   error: PropTypes.string,
-  transactions: PropTypes.array,
   blocks: PropTypes.array
 };
 

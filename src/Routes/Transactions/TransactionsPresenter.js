@@ -23,6 +23,7 @@ const TransactionsPresenter = ({ transactions }) => (
             id={transaction.id}
             insOuts={`${transaction.txIns.length}/${transaction.txOuts.length}`}
             amount={sum(transaction.txOuts.map(txOut => txOut.amount))}
+            fee={transaction.fee}
             key={transaction.id}
           />
         ))

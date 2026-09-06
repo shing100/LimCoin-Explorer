@@ -3,12 +3,7 @@ import AppPresenter from "./AppPresenter";
 import axios from "axios";
 import baseStyles from "../../globalStyles";
 import { API_URL, WS_URL } from "../../constants";
-import flatten from "lodash.flatten";
 import { parseMessage } from "../../utils";
-
-// 트랜잭션 자체에는 시간 정보가 없다. 담고 있는 블록의 시간을 붙여 준다.
-const withBlockTimestamp = block =>
-  (block.data || []).map(tx => ({ ...tx, timestamp: block.timestamp }));
 
 baseStyles();
 
@@ -16,8 +11,7 @@ class AppContainer extends Component {
   state = {
     isLoading: true,
     error: null,
-    blocks: [],
-    transactions: []
+    blocks: []
   };
   componentDidMount = () => {
     this._getData();
@@ -36,11 +30,8 @@ class AppContainer extends Component {
     try {
       const request = await axios.get(`${API_URL}/blocks`);
       // reverse() 는 원본을 뒤집으므로 복사본을 만든다
-      const reversedBlocks = [...request.data].reverse();
-      const txs = flatten(reversedBlocks.map(withBlockTimestamp));
       this.setState({
-        blocks: reversedBlocks,
-        transactions: txs,
+        blocks: [...request.data].reverse(),
         isLoading: false,
         error: null
       });
@@ -78,13 +69,7 @@ class AppContainer extends Component {
         if (fresh.length === 0) {
           return null;
         }
-        return {
-          blocks: [...fresh, ...prevState.blocks],
-          transactions: [
-            ...flatten(fresh.map(withBlockTimestamp)),
-            ...prevState.transactions
-          ]
-        };
+        return { blocks: [...fresh, ...prevState.blocks] };
       });
     });
   };
