@@ -37,7 +37,7 @@ const Message = styled.p`
 `;
 
 const AppPresenter = ({
-  isLoading, error, blocks, info, page, total, pageSize, onPage
+  isLoading, error, blocks, info, page, total, pageSize, onPage, mempool, live
 }) => {
   /*
    * 수수료를 알려면 입력이 가리키는 이전 출력을 되짚어야 한다. 지금 받아 둔
@@ -60,7 +60,7 @@ const AppPresenter = ({
   return (
     <BrowserRouter>
       <Shell>
-        <Header />
+        <Header live={live} />
         <Main>
           {isLoading && <Message>블록체인을 불러오는 중…</Message>}
           {!isLoading && error && <Message>{error}</Message>}
@@ -75,6 +75,8 @@ const AppPresenter = ({
                       blocks={blocks.slice(0, 5)}
                       transactions={transactions.slice(0, 5)}
                       stats={stats}
+                      mempool={mempool}
+                      mempoolFees={info ? info.mempoolFees : 0}
                     />
                   )}
                 />
@@ -86,7 +88,13 @@ const AppPresenter = ({
                 <Route
                   exact
                   path="/transactions"
-                  render={() => <Transactions transactions={transactions} />}
+                  render={() => (
+                    <Transactions
+                      transactions={transactions}
+                      mempool={mempool}
+                      mempoolFees={info ? info.mempoolFees : 0}
+                    />
+                  )}
                 />
                 <Route path="/block/:hash" component={Block} />
                 <Route path="/height/:height" component={Block} />
@@ -109,7 +117,9 @@ AppPresenter.propTypes = {
   page: PropTypes.number,
   total: PropTypes.number,
   pageSize: PropTypes.number,
-  onPage: PropTypes.func
+  onPage: PropTypes.func,
+  mempool: PropTypes.array,
+  live: PropTypes.bool
 };
 
 export default AppPresenter;

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import styled from "styled-components";
 import { Link, NavLink } from "react-router-dom";
 import { breakpoint } from "../../theme";
@@ -81,12 +82,46 @@ const NavItem = styled(NavLink)`
   }
 `;
 
-const HeaderPresenter = () => (
+/*
+ * 새 블록이 실시간으로 들어오고 있는지.
+ *
+ * 예전에는 소켓이 끊겨도 화면에 아무 표시가 없었다. 멈춘 화면과
+ * "블록이 안 나오는 중"을 구별할 방법이 없었다.
+ */
+const Live = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: ${props => (props.on ? "var(--accent)" : "var(--textMuted)")};
+
+  &::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: ${props => (props.on ? "var(--accent)" : "var(--border)")};
+  }
+
+  /* 좁은 화면에서는 점만 남긴다. 글자는 자리를 너무 많이 차지하고,
+     연결 상태는 오히려 모바일에서 더 알고 싶은 것이다. */
+  @media (max-width: ${breakpoint.sm}) {
+    font-size: 0;
+    gap: 0;
+  }
+`;
+
+const HeaderPresenter = ({ live }) => (
   <Bar>
     <Inner>
       <Brand to="/">
         <Coin>L</Coin>
         LimCoin
+        <Live on={live} title={live ? "노드와 연결되어 있습니다" : "연결이 끊겼습니다. 다시 붙는 중입니다."}>
+          {live ? "실시간" : "연결 끊김"}
+        </Live>
       </Brand>
       <Search />
       <Nav>
@@ -103,5 +138,9 @@ const HeaderPresenter = () => (
     </Inner>
   </Bar>
 );
+
+HeaderPresenter.propTypes = {
+  live: PropTypes.bool
+};
 
 export default HeaderPresenter;

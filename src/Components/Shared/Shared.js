@@ -169,13 +169,19 @@ export const TxHeader = () => (
 );
 
 // fee 가 null 이면 입력을 되짚지 못한 경우(코인베이스 등)다.
-export const TxRow = ({ timestamp, id, insOuts, amount, fee }) => (
+/*
+ * pending 이면 아직 블록에 담기지 않은 트랜잭션이다.
+ * 시각도 수수료도 블록이 있어야 알 수 있으므로 그 자리에 표시를 둔다.
+ */
+export const TxRow = ({ timestamp, id, insOuts, amount, fee, pending }) => (
   <LinkRow layout="txs" to={`/tx/${id}`}>
     <Num>{formatLim(amount)}</Num>
-    <Fee hideBelow="sm">{fee === null ? "—" : formatLim(fee)}</Fee>
+    <Fee hideBelow="sm">
+      {fee === null || fee === undefined ? "—" : formatLim(fee)}
+    </Fee>
     <Hash title={id}>{id}</Hash>
     <Cell hideBelow="sm">{insOuts}</Cell>
-    <Time hideBelow="md">{timestamp}</Time>
+    <Time hideBelow="md">{pending ? <Pill>대기 중</Pill> : timestamp}</Time>
   </LinkRow>
 );
 
