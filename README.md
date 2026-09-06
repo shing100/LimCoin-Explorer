@@ -51,7 +51,7 @@ REACT_APP_API_URL=http://localhost:4001 REACT_APP_WS_URL=ws://localhost:4001 yar
 | `/transactions` | 트랜잭션 목록 |
 | `/block/:hash` | 블록 상세 — 머클 루트, nonce, 담긴 트랜잭션 |
 | `/tx/:id` | 트랜잭션 상세 — 입출력, **머클 증명** |
-| `/address/:address` | 주소 잔액 |
+| `/address/:address` | 주소 잔액, 미사용 출력, **트랜잭션 내역** |
 
 목록의 행을 누르면 상세로 간다. 헤더의 검색창에 **블록 높이 · 64자 해시 ·
 주소** 중 아무거나 넣으면 노드가 판별해 알맞은 페이지로 보낸다.
@@ -94,6 +94,10 @@ src/
 
 노드가 내주는 금액은 전부 최소 단위(lm) 정수다. **1 LIM = 100,000,000 lm**.
 화면에서만 LIM 으로 환산한다 (`src/units.js`).
+
+> 주소 내역은 노드가 색인해 둔 것을 그대로 받는다
+> (`GET /address/:address/transactions`). 예전에는 이런 게 없어서
+> 주소 페이지가 잔액만 보여 줄 수 있었다.
 
 수수료는 트랜잭션에 필드로 들어 있지 않다. 백서 6장대로 "입력합 - 출력합" 의
 차액이기 때문이다. 그런데 `txIn` 은 이전 출력을 `(txOutId, txOutIndex)` 로

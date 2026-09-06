@@ -31,5 +31,24 @@ export const getTxProof = async id =>
 export const getBalance = async address =>
   (await axios.get(`${API_URL}/address/${address}`)).data;
 
+/*
+ * 주소의 트랜잭션 내역.
+ *
+ * 예전에는 이런 게 없어서 주소 페이지가 잔액만 보여 줄 수 있었다.
+ * 노드가 블록을 붙일 때 주소별로 색인해 두므로 그대로 받는다.
+ */
+export const getAddressTransactions = async (address, limit, offset = 0) => {
+  const res = await axios.get(`${API_URL}/address/${address}/transactions`, {
+    params: { limit, offset }
+  });
+  return {
+    transactions: res.data,
+    total: Number(res.headers["x-total-count"]) || res.data.length
+  };
+};
+
+export const getAddressUtxos = async address =>
+  (await axios.get(`${API_URL}/address/${address}/utxos`)).data;
+
 export const getMempool = async () =>
   (await axios.get(`${API_URL}/transactions`)).data;
