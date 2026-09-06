@@ -1,90 +1,98 @@
 import React from "react";
 import styled from "styled-components";
 import { Link, NavLink } from "react-router-dom";
+import { breakpoint } from "../../theme";
 
-const TitleLink = styled(Link)`
-  color: inherit;
-`;
-
-const Title = styled.h1`
-  margin: 0;
-`;
-
-const HeaderContainer = styled.header`
+const Bar = styled.header`
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 50px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
 `;
 
-const HeaderWrapper = styled.div`
+const Inner = styled.div`
   max-width: 1000px;
   width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 62px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+`;
+
+const Brand = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+`;
+
+const Coin = styled.span`
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--surface);
+  font-size: 13px;
+  font-weight: 800;
 `;
 
 const Nav = styled.nav`
-  width: 70%;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 4px;
 `;
 
-const List = styled.ul`
-  display: flex;
-  margin: 0;
-  align-items: center;
-flex-wrap: wrap;
-`;
-
-const ListItem = styled.li`
-  margin-bottom: 0;
-  margin-right: 50px;
-`;
-
-const SLink = styled(NavLink)`
-  text-decoration: none;
+/*
+ * 예전에는 window.location.pathname 으로 활성 여부를 계산했다.
+ * 이 값이 바뀌어도 리렌더가 일어나지 않아 메뉴를 옮겨도 강조가 그대로였다.
+ * NavLink 는 라우터가 직접 active 클래스를 붙여 준다.
+ */
+const NavItem = styled(NavLink)`
+  padding: 7px 12px;
+  border-radius: 7px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: #676767;
+  color: var(--textMuted);
+  transition: background .12s, color .12s;
+
+  &:hover { background: var(--surfaceSunken); color: var(--text); }
+
   &.active {
-    color: black;
+    background: var(--accentSoft);
+    color: var(--accent);
+  }
+
+  @media (max-width: ${breakpoint.sm}) {
+    padding: 7px 9px;
   }
 `;
 
-const HeaderPresenter = () => {
-  return (
-    <HeaderContainer>
-      <HeaderWrapper>
-        <Title>
-          <TitleLink to="/">LimCoin</TitleLink>
-        </Title>
-        <Nav>
-          <List>
-            <ListItem>
-              <SLink exact to="/" activeClassName="active">
-                Home
-              </SLink>
-            </ListItem>
-            <ListItem>
-              <SLink to="/blocks" activeClassName="active">
-                Blocks
-              </SLink>
-            </ListItem>
-            <ListItem>
-              <SLink to="/transactions" activeClassName="active">
-                Transactions
-              </SLink>
-            </ListItem>
-          </List>
-        </Nav>
-      </HeaderWrapper>
-    </HeaderContainer>
-  );
-};
+const HeaderPresenter = () => (
+  <Bar>
+    <Inner>
+      <Brand to="/">
+        <Coin>L</Coin>
+        LimCoin
+      </Brand>
+      <Nav>
+        <NavItem exact to="/" activeClassName="active">
+          Home
+        </NavItem>
+        <NavItem to="/blocks" activeClassName="active">
+          Blocks
+        </NavItem>
+        <NavItem to="/transactions" activeClassName="active">
+          Transactions
+        </NavItem>
+      </Nav>
+    </Inner>
+  </Bar>
+);
 
 export default HeaderPresenter;

@@ -1,32 +1,33 @@
-import React, { Fragment } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import styled from "styled-components";
 import { makeDate } from "../../utils";
-import { CardBoard, BlocksHeader, BlocksRow } from "Components/Shared";
-
-const TableContainer = styled.div`
-  margin-top: 50px;
-  margin-bottom: 100px;
-`;
+import {
+  Card, SectionTitle, SectionNote, BlocksHeader, BlocksRow, Empty
+} from "Components/Shared";
 
 const BlocksPresenter = ({ blocks }) => (
-  <Fragment>
-    <TableContainer>
-      <h2>Blocks</h2>
-      <CardBoard>
-        <BlocksHeader />
-        {blocks.map((block, index) => (
+  <section>
+    <SectionTitle>
+      블록
+      <SectionNote>{blocks.length}개 표시 중</SectionNote>
+    </SectionTitle>
+    <Card>
+      <BlocksHeader />
+      {blocks.length === 0 ? (
+        <Empty>아직 블록이 없습니다.</Empty>
+      ) : (
+        blocks.map(block => (
           <BlocksRow
             index={block.index}
             hash={block.hash}
             timestamp={makeDate(block.timestamp)}
             difficulty={block.difficulty}
-            key={index}
+            key={block.hash}
           />
-        ))}
-      </CardBoard>
-    </TableContainer>
-  </Fragment>
+        ))
+      )}
+    </Card>
+  </section>
 );
 
 BlocksPresenter.propTypes = {

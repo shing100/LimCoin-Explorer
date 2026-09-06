@@ -1,20 +1,10 @@
 import React, { Component } from "react";
-import { injectGlobal } from "styled-components";
 import AppPresenter from "./AppPresenter";
 import axios from "axios";
-import reset from "styled-reset";
-import typography from "../../typography";
+import baseStyles from "../../globalStyles";
 import { API_URL, WS_URL } from "../../constants";
 import flatten from "lodash.flatten";
 import { parseMessage } from "../../utils";
-
-const baseStyles = () => injectGlobal`
-    ${reset};
-    ${typography};
-    a{
-        text-decoration:none!important;
-    }
-`;
 
 // 트랜잭션 자체에는 시간 정보가 없다. 담고 있는 블록의 시간을 붙여 준다.
 const withBlockTimestamp = block =>

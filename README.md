@@ -24,7 +24,6 @@ REACT_APP_API_URL=http://localhost:4001 REACT_APP_WS_URL=ws://localhost:4001 yar
 # 라이브러리
 - react, react-dom, react-router-dom, react-scripts
 - prop-types
-- typography
 - styled-components, styled-reset
 - axios
 - lodash.flatten, lodash.sum
@@ -41,8 +40,7 @@ REACT_APP_API_URL=http://localhost:4001 REACT_APP_WS_URL=ws://localhost:4001 yar
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4",
     "styled-components": "^3.3.2",
-    "styled-reset": "^1.3.5",
-    "typography": "^0.16.17"
+    "styled-reset": "^1.3.5"
 
 ## 기능
 
@@ -70,3 +68,20 @@ src/
 ```
 
 > `NODE_PATH=src` (`.env`) 덕분에 `Components/...` 처럼 절대경로로 import 한다.
+
+## 디자인
+
+`src/theme.js` 에 토큰이 모여 있다. LimCoin Wallet 과 같은 강조색·반경·그림자
+체계를 쓰되, 익스플로러는 웹이므로 라이트를 기본으로 두고 다크는
+`prefers-color-scheme` 를 따라간다.
+
+- 해시와 트랜잭션 id 는 고정폭 글꼴 — 자릿수를 눈으로 비교할 수 있어야 한다
+- 표는 열 정의를 가진 grid 다. 폭이 좁아지면 Timestamp, Difficulty 순으로 접힌다
+- 웹폰트를 받지 않는다. 로컬 노드를 보는 도구가 네트워크에 매달릴 이유가 없다
+
+## 배포 시 주의
+
+`BrowserRouter` 를 쓰므로 정적 호스팅에 올릴 때 **모든 경로를
+`index.html` 로 되돌려주는 설정(SPA fallback)이 필요**하다. 이 설정이 없으면
+`/blocks` 로 직접 들어갔을 때 404 가 난다. (nginx 의 `try_files`,
+Netlify 의 `_redirects`, GitHub Pages 라면 `HashRouter` 로 바꾸는 방법)
