@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const TitleLink = styled(Link)`
   color: inherit;
@@ -47,14 +47,16 @@ const ListItem = styled.li`
   margin-right: 50px;
 `;
 
-const SLink = styled.span`
+const SLink = styled(NavLink)`
   text-decoration: none;
   font-weight: 600;
-  color: ${props => (props.isActive ? "black" : "#676767")};
+  color: #676767;
+  &.active {
+    color: black;
+  }
 `;
 
-const HeaderPresenter = props => {
-  console.log(props);
+const HeaderPresenter = () => {
   return (
     <HeaderContainer>
       <HeaderWrapper>
@@ -64,25 +66,19 @@ const HeaderPresenter = props => {
         <Nav>
           <List>
             <ListItem>
-              <Link to="/">
-                <SLink isActive={window.location.pathname === "/"}>
-                  Home
-                </SLink>
-              </Link>
+              <SLink exact to="/" activeClassName="active">
+                Home
+              </SLink>
             </ListItem>
             <ListItem>
-              <Link to="/blocks">
-                <SLink isActive={window.location.pathname === "/blocks"}>
-                  Blocks
-                </SLink>
-              </Link>
+              <SLink to="/blocks" activeClassName="active">
+                Blocks
+              </SLink>
             </ListItem>
             <ListItem>
-              <Link to="/transactions">
-                <SLink isActive={window.location.pathname === "/transactions"}>
-                  Transactions
-                </SLink>
-              </Link>
+              <SLink to="/transactions" activeClassName="active">
+                Transactions
+              </SLink>
             </ListItem>
           </List>
         </Nav>

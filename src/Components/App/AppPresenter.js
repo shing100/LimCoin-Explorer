@@ -24,11 +24,19 @@ const Main = styled.main`
   }
 `;
 
-const AppPresenter = ({ isLoading, transactions, blocks }) => (
+const Message = styled.p`
+  margin-top: 50px;
+  text-align: center;
+  color: #676767;
+`;
+
+const AppPresenter = ({ isLoading, error, transactions, blocks }) => (
   <BrowserRouter>
     <AppContainer>
       <Header />
-      {!isLoading && (
+      {isLoading && <Message>Loading…</Message>}
+      {!isLoading && error && <Message>{error}</Message>}
+      {!isLoading && !error && (
         <Main>
           <Switch>
             <Route exact path={`/`} render={() => (
@@ -55,6 +63,7 @@ const AppPresenter = ({ isLoading, transactions, blocks }) => (
 
 AppPresenter.propTypes = {
   isLoading: PropTypes.bool.isRequired,
+  error: PropTypes.string,
   transactions: PropTypes.array,
   blocks: PropTypes.array
 }

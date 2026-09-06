@@ -9,7 +9,7 @@ const TableContainer = styled.div`
   margin-bottom: 100px;
 `;
 
-const BlocksPresenter = ( { blocks, transactions } ) => (
+const BlocksPresenter = ({ blocks }) => (
   <Fragment>
     <TableContainer>
       <h2>Blocks</h2>

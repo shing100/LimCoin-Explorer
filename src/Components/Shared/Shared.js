@@ -39,7 +39,7 @@ export const RowContainer = styled.div`
     width: 20%;
     margin-bottom: 20px;
   }
-  & *:nt-child(2) {
+  & *:nth-child(2) {
     width: 40%;
 }
 `;
@@ -69,6 +69,7 @@ export const TxHeader = () => (
       <Cell>Amount</Cell>
       <Cell>ID</Cell>
       <Cell>Ins/Outs</Cell>
+      <Cell>Timestamp</Cell>
     </RowContainer>
   </Header>
 );
@@ -87,5 +88,6 @@ export const TxRow = ({ timestamp, id, insOuts, amount }) => (
     <Cell>{amount}</Cell>
     <Cell>{id}</Cell>
     <Cell>{insOuts}</Cell>
+    <Cell>{timestamp}</Cell>
   </RowContainer>
 );
