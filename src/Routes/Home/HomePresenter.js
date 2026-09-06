@@ -4,6 +4,7 @@ import styled from "styled-components";
 import sum from "lodash.sum";
 import { makeDate } from "../../utils";
 import Stats from "Components/Stats";
+import Pending from "Components/Pending";
 import {
   Card, SectionTitle, SectionNote, BlocksHeader, BlocksRow,
   TxHeader, TxRow, Empty
@@ -15,11 +16,17 @@ const Section = styled.section`
   &:last-child { margin-bottom: 0; }
 `;
 
-const HomePresenter = ({ blocks, transactions, stats }) => (
+const HomePresenter = ({ blocks, transactions, stats, mempool, mempoolFees }) => (
   <Fragment>
     <Section>
       <Stats {...stats} />
     </Section>
+
+    {mempool.length > 0 && (
+      <Section>
+        <Pending transactions={mempool} totalFees={mempoolFees} />
+      </Section>
+    )}
 
     <Section>
       <SectionTitle>
@@ -73,7 +80,9 @@ const HomePresenter = ({ blocks, transactions, stats }) => (
 HomePresenter.propTypes = {
   blocks: PropTypes.array.isRequired,
   transactions: PropTypes.array.isRequired,
-  stats: PropTypes.object.isRequired
+  stats: PropTypes.object.isRequired,
+  mempool: PropTypes.array.isRequired,
+  mempoolFees: PropTypes.number
 };
 
 export default HomePresenter;

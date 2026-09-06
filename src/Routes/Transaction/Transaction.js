@@ -2,6 +2,7 @@ import React, { Component, Fragment } from "react";
 import styled from "styled-components";
 import { getTransaction, getTxProof } from "../../api";
 import { formatLim } from "../../units";
+import { makeDate } from "../../utils";
 import {
   Card, SectionTitle, SectionNote, Detail, DKey, DValue, Back, Empty,
   MonoLink, Pill
@@ -103,13 +104,21 @@ class Transaction extends Component {
     }
 
     const outTotal = tx.txOuts.reduce((sum, txOut) => sum + txOut.amount, 0);
+    // 노드가 담긴 블록을 알려 준다. 머클 증명에도 같은 값이 들어 있다.
+    const blockHash = tx.blockHash || (proof && proof.blockHash);
+    const blockIndex = tx.blockIndex !== undefined && tx.blockIndex !== null
+      ? tx.blockIndex
+      : proof && proof.blockIndex;
 
     return (
       <Fragment>
         <Back to="/transactions">← 트랜잭션 목록</Back>
         <SectionTitle>
           트랜잭션
-          <SectionNote>{isCoinbase(tx) && <Pill>코인베이스</Pill>}</SectionNote>
+          <SectionNote>
+            {tx.pending && <Pill>대기 중</Pill>}
+            {isCoinbase(tx) && <Pill>코인베이스</Pill>}
+          </SectionNote>
         </SectionTitle>
         <Card>
           <Detail>
@@ -119,12 +128,24 @@ class Transaction extends Component {
             <DValue>{formatLim(outTotal)} LIM</DValue>
             <DKey>입력 / 출력</DKey>
             <DValue>{tx.txIns.length} / {tx.txOuts.length}</DValue>
-            {proof && (
+            <DKey>상태</DKey>
+            <DValue>
+              {tx.pending
+                ? "아직 블록에 담기지 않았습니다 (mempool)"
+                : `확인 ${tx.confirmations}회`}
+            </DValue>
+            {!tx.pending && tx.timestamp && (
+              <Fragment>
+                <DKey>시각</DKey>
+                <DValue>{makeDate(tx.timestamp)}</DValue>
+              </Fragment>
+            )}
+            {blockHash && (
               <Fragment>
                 <DKey>담긴 블록</DKey>
                 <DValue>
-                  <MonoLink to={`/block/${proof.blockHash}`}>
-                    #{proof.blockIndex} · {proof.blockHash}
+                  <MonoLink to={`/block/${blockHash}`}>
+                    #{blockIndex} · {blockHash}
                   </MonoLink>
                 </DValue>
               </Fragment>

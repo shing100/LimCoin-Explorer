@@ -10,7 +10,8 @@ class HomeContainer extends Component {
 
 HomeContainer.propTypes = {
   blocks: PropTypes.array.isRequired,
-  transactions: PropTypes.array.isRequired
+  transactions: PropTypes.array.isRequired,
+  mempool: PropTypes.array.isRequired
 };
 
 export default HomeContainer;

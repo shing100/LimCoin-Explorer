@@ -9,7 +9,8 @@ class TransactionsContainer extends Component {
 }
 
 TransactionsContainer.propTypes = {
-  transactions: PropTypes.array.isRequired
+  transactions: PropTypes.array.isRequired,
+  mempool: PropTypes.array.isRequired
 };
 
 export default TransactionsContainer;
