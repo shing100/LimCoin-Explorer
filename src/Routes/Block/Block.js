@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import sum from "lodash.sum";
 import { getBlock, getBlocks } from "../../api";
-import { makeDate } from "../../utils";
+import { makeDate, difficultyFromBits, formatDifficulty } from "../../utils";
 import { enrichTransactions } from "../../txinfo";
 import {
   Card, SectionTitle, SectionNote, Detail, DKey, DValue, Back, Empty,
@@ -93,7 +93,7 @@ class Block extends Component {
             <DKey>시각</DKey>
             <DValue>{makeDate(block.timestamp)}</DValue>
             <DKey>난이도</DKey>
-            <DValue>{block.difficulty}</DValue>
+            <DValue title={`bits 0x${(block.bits || 0).toString(16)}`}>{formatDifficulty(difficultyFromBits(block.bits))}</DValue>
             <DKey>Nonce</DKey>
             <DValue>{block.nonce.toLocaleString()}</DValue>
             <DKey>트랜잭션</DKey>

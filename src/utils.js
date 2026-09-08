@@ -39,3 +39,36 @@ export const parseMessage = message => {
   }
   return { type: parsed.type, data: parsed.data };
 }
+
+/*
+ * 압축 목표값(bits, 노드의 target.js)에서 사람이 읽는 난이도를 낸다.
+ *
+ *   target = 가수 × 256^(지수−3),  난이도 = POW_LIMIT / target
+ *
+ * POW_LIMIT(바닥) 은 0x207fffff = 0x7fffff × 256^29 ≈ 2^255. 부동소수로도
+ * 충분하다(2^255 는 double 범위 안이다) — 표시용이지 합의용이 아니다.
+ */
+const POW_LIMIT = 0x7fffff * Math.pow(256, 0x20 - 3);
+
+export const difficultyFromBits = bits => {
+  if (typeof bits !== "number" || !Number.isFinite(bits)) {
+    return 0;
+  }
+  const exponent = Math.floor(bits / 0x1000000) & 0xff;
+  const mantissa = bits & 0x007fffff;
+  if (mantissa === 0) {
+    return 0;
+  }
+  return POW_LIMIT / (mantissa * Math.pow(256, exponent - 3));
+};
+
+// 16384.12 -> "16,384", 1234567 -> "1.23M"
+export const formatDifficulty = difficulty => {
+  if (!Number.isFinite(difficulty) || difficulty <= 0) {
+    return "-";
+  }
+  if (difficulty >= 1e9) return `${(difficulty / 1e9).toFixed(2)}G`;
+  if (difficulty >= 1e6) return `${(difficulty / 1e6).toFixed(2)}M`;
+  if (difficulty >= 1e4) return Math.round(difficulty).toLocaleString();
+  return difficulty >= 100 ? difficulty.toFixed(0) : difficulty.toFixed(2);
+};

@@ -26,7 +26,7 @@ const BlocksPresenter = ({ blocks, pager }) => {
               index={block.index}
               hash={block.hash}
               timestamp={makeDate(block.timestamp)}
-              difficulty={block.difficulty}
+              bits={block.bits}
               key={block.hash}
             />
           ))
