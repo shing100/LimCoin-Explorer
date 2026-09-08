@@ -166,9 +166,19 @@ class AppContainer extends Component {
       return;
     }
 
-    // 누군가 트랜잭션을 보내면 노드가 mempool 을 통째로 흘려 준다
+    /*
+     * 누군가 트랜잭션을 보내면 노드가 그 한 건을 흘려 준다 (mempool 전체를
+     * 줄 때도 있다). 교체하지 않고 id 로 합친다 — 한 건만 왔을 때 교체하면
+     * 대기 목록이 그 한 건으로 줄어 버린다. 블록에 담겨 빠지는 것은 블록
+     * 메시지 뒤의 _refresh 가 처리한다.
+     */
     if (parsed.type === MESSAGE.MEMPOOL) {
-      this.setState({ mempool: parsed.data });
+      const incoming = Array.isArray(parsed.data) ? parsed.data : [];
+      this.setState(prev => {
+        const known = new Set(prev.mempool.map(tx => tx.id));
+        const fresh = incoming.filter(tx => tx && !known.has(tx.id));
+        return fresh.length === 0 ? null : { mempool: [...prev.mempool, ...fresh] };
+      });
       return;
     }
     if (parsed.type !== MESSAGE.BLOCKS || parsed.data.length === 0) {
