@@ -43,7 +43,7 @@ const HomePresenter = ({ blocks, transactions, stats, mempool, mempoolFees }) =>
               index={block.index}
               hash={block.hash}
               timestamp={makeDate(block.timestamp)}
-              difficulty={block.difficulty}
+              bits={block.bits}
               key={block.hash}
             />
           ))

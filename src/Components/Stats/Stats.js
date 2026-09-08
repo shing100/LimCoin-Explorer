@@ -1,4 +1,5 @@
 import React from "react";
+import { formatDifficulty } from "../../utils";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { radius, breakpoint } from "../../theme";
@@ -58,7 +59,7 @@ const Stats = ({ height, txCount, difficulty, supply }) => (
     </Tile>
     <Tile>
       <Key>현재 난이도</Key>
-      <Value>{difficulty}</Value>
+      <Value>{formatDifficulty(difficulty)}</Value>
     </Tile>
     <Tile>
       <Key>총 발행량</Key>

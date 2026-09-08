@@ -1,4 +1,5 @@
 import React from "react";
+import { difficultyFromBits, formatDifficulty } from "../../utils";
 import { Link } from "react-router-dom";
 import styled, { css } from "styled-components";
 import { radius, mono, breakpoint } from "../../theme";
@@ -149,12 +150,13 @@ export const BlocksHeader = () => (
   </HeadRow>
 );
 
-export const BlocksRow = ({ index, hash, timestamp, difficulty }) => (
+// bits 는 노드의 압축 목표값. 사람이 읽는 난이도로 바꿔 보인다.
+export const BlocksRow = ({ index, hash, timestamp, bits }) => (
   <LinkRow layout="blocks" to={`/block/${hash}`}>
     <Index>{index}</Index>
     <Hash title={hash}>{hash}</Hash>
     <Time hideBelow="md">{timestamp}</Time>
-    <Num hideBelow="sm">{difficulty}</Num>
+    <Num hideBelow="sm" title={`bits 0x${(bits || 0).toString(16)}`}>{formatDifficulty(difficultyFromBits(bits))}</Num>
   </LinkRow>
 );
 
