@@ -72,3 +72,23 @@ export const formatDifficulty = difficulty => {
   if (difficulty >= 1e4) return Math.round(difficulty).toLocaleString();
   return difficulty >= 100 ? difficulty.toFixed(0) : difficulty.toFixed(2);
 };
+
+/*
+ * 주소 종류. 첫 글자로 가려진다 (SPEC 2절).
+ *
+ *   L / m,n  공개키 해시 (P2PKH) — 열쇠 하나로 쓴다
+ *   M / 2    스크립트 (P2SH) — 다중서명·타임락·HTLC 같은 조건
+ *   04…      예전 형식(공개키 hex 130자)
+ */
+export const addressKind = address => {
+  if (typeof address !== "string") {
+    return null;
+  }
+  if (/^04[0-9a-fA-F]{128}$/.test(address)) {
+    return { label: "예전 형식", title: "공개키를 그대로 쓴 주소" };
+  }
+  if (/^[M2]/.test(address)) {
+    return { label: "스크립트", title: "조건(다중서명·타임락 등)으로 잠긴 주소 (P2SH)" };
+  }
+  return null;
+};
