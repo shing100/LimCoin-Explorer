@@ -2,7 +2,7 @@ import React, { Component, Fragment } from "react";
 import styled from "styled-components";
 import { getTransaction, getTxProof } from "../../api";
 import { formatLim } from "../../units";
-import { makeDate } from "../../utils";
+import { makeDate, addressKind } from "../../utils";
 import {
   Card, SectionTitle, SectionNote, Detail, DKey, DValue, Back, Empty,
   MonoLink, Pill
@@ -128,6 +128,16 @@ class Transaction extends Component {
             <DValue>{formatLim(outTotal)} LIM</DValue>
             <DKey>입력 / 출력</DKey>
             <DValue>{tx.txIns.length} / {tx.txOuts.length}</DValue>
+            {tx.lockTime > 0 && (
+              <Fragment>
+                <DKey>타임락</DKey>
+                <DValue>
+                  {tx.lockTime < 500000000
+                    ? `높이 ${tx.lockTime} 부터 담길 수 있다`
+                    : `${makeDate(tx.lockTime)} 부터 담길 수 있다`}
+                </DValue>
+              </Fragment>
+            )}
             <DKey>상태</DKey>
             <DValue>
               {tx.pending
@@ -169,6 +179,12 @@ class Transaction extends Component {
                     <MonoLink to={`/tx/${txIn.txOutId}`}>
                       {txIn.txOutId}:{txIn.txOutIndex}
                     </MonoLink>
+                    {/* 스크립트로 잠긴 출력을 쓴 입력은 조건을 함께 싣는다 */}
+                    {txIn.redeemScript && (
+                      <Pill title={txIn.redeemScript}>
+                        스크립트 · 해제 데이터 {(txIn.unlock || []).length}개
+                      </Pill>
+                    )}
                   </IO>
                 ))
               )}
@@ -177,14 +193,18 @@ class Transaction extends Component {
           <div>
             <SectionTitle>출력</SectionTitle>
             <Card>
-              {tx.txOuts.map((txOut, i) => (
-                <IO key={i}>
-                  <IOAmount>{formatLim(txOut.amount)} LIM</IOAmount>
-                  <MonoLink to={`/address/${txOut.address}`}>
-                    {txOut.address}
-                  </MonoLink>
-                </IO>
-              ))}
+              {tx.txOuts.map((txOut, i) => {
+                const kind = addressKind(txOut.address);
+                return (
+                  <IO key={i}>
+                    <IOAmount>{formatLim(txOut.amount)} LIM</IOAmount>
+                    <MonoLink to={`/address/${txOut.address}`}>
+                      {txOut.address}
+                    </MonoLink>
+                    {kind && <Pill title={kind.title}>{kind.label}</Pill>}
+                  </IO>
+                );
+              })}
             </Card>
           </div>
         </Columns>
