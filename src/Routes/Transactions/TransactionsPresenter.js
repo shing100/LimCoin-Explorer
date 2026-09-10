@@ -1,7 +1,6 @@
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import sum from "lodash.sum";
-import { makeDate } from "../../utils";
 import Pending from "Components/Pending";
 import {
   Card, SectionTitle, SectionNote, TxHeader, TxRow, Empty
@@ -22,7 +21,7 @@ const TransactionsPresenter = ({ transactions, mempool, mempoolFees }) => (
         ) : (
           transactions.map(transaction => (
             <TxRow
-              timestamp={makeDate(transaction.timestamp)}
+              timestamp={transaction.timestamp}
               id={transaction.id}
               insOuts={`${transaction.txIns.length}/${transaction.txOuts.length}`}
               amount={sum(transaction.txOuts.map(txOut => txOut.amount))}

@@ -1,6 +1,5 @@
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
-import { makeDate } from "../../utils";
 import {
   Card, SectionTitle, SectionNote, BlocksHeader, BlocksRow, Empty,
   Pager, PagerButton
@@ -25,7 +24,7 @@ const BlocksPresenter = ({ blocks, pager }) => {
             <BlocksRow
               index={block.index}
               hash={block.hash}
-              timestamp={makeDate(block.timestamp)}
+              timestamp={block.timestamp}
               bits={block.bits}
               key={block.hash}
             />

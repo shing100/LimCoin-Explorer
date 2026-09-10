@@ -111,7 +111,7 @@ class Block extends Component {
               <TxRow
                 key={tx.id}
                 id={tx.id}
-                timestamp={makeDate(tx.timestamp)}
+                timestamp={tx.timestamp}
                 insOuts={`${tx.txIns.length}/${tx.txOuts.length}`}
                 amount={sum(tx.txOuts.map(txOut => txOut.amount))}
                 fee={tx.fee}

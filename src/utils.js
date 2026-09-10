@@ -1,10 +1,56 @@
+/*
+ * 블록 타임스탬프(초)를 사람이 읽는 시각으로.
+ *
+ * 예전에는 `toUTCString()` 이라 "Thu, 10 Sep 2026 00:19:48 GMT" 가 나왔다.
+ * 한국어 화면에 영어 GMT 문자열이 끼어 있었고, 무엇보다 표 칸에 안 들어가서
+ * "Thu, 10 Sep 2026 00:19:48 …" 로 잘렸다 — 잘린 자리가 하필 시각이라
+ * 정작 알고 싶은 값이 안 보였다.
+ *
+ * 이제 보는 이의 시간대로 짧게 적는다. locale 을 "ko-KR" 로 고정하는 것은
+ * 화면 문구가 한국어이기 때문이다(브라우저 기본에 맡기면 같은 화면에
+ * 9/10/2026 과 2026. 9. 10. 이 섞인다).
+ */
 export const makeDate = seconds => {
   if (typeof seconds !== "number" || Number.isNaN(seconds)) {
     return "-";
   }
-  const date = new Date(null);
-  date.setSeconds(seconds);
-  return date.toUTCString();
+  const date = new Date(seconds * 1000);
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+  return date.toLocaleString("ko-KR", {
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hour12: false
+  });
+};
+
+/*
+ * 표 안에서는 "몇 분 전"이 훨씬 쓸모 있다 — 블록이 지금도 나오고 있는지를
+ * 한눈에 보려는 것이지, 몇 시 몇 분에 나왔는지를 보려는 게 아니다.
+ * 정확한 시각은 title 로 함께 단다.
+ */
+export const makeAgo = (seconds, now = Date.now()) => {
+  if (typeof seconds !== "number" || Number.isNaN(seconds)) {
+    return "-";
+  }
+  const diff = Math.round(now / 1000) - seconds;
+  if (diff < 0) {
+    return "곧";
+  }
+  if (diff < 60) {
+    return `${diff}초 전`;
+  }
+  if (diff < 3600) {
+    return `${Math.floor(diff / 60)}분 전`;
+  }
+  if (diff < 86400) {
+    return `${Math.floor(diff / 3600)}시간 전`;
+  }
+  if (diff < 86400 * 30) {
+    return `${Math.floor(diff / 86400)}일 전`;
+  }
+  return makeDate(seconds).slice(0, 12); // 오래됐으면 날짜만
 };
 
 export const stringToJSON = string => {

@@ -126,13 +126,13 @@ const HeaderPresenter = ({ live }) => (
       <Search />
       <Nav>
         <NavItem exact to="/" activeClassName="active">
-          Home
+          홈
         </NavItem>
         <NavItem to="/blocks" activeClassName="active">
-          Blocks
+          블록
         </NavItem>
         <NavItem to="/transactions" activeClassName="active">
-          Transactions
+          트랜잭션
         </NavItem>
       </Nav>
     </Inner>

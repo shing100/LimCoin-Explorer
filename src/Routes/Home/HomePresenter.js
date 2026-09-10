@@ -2,7 +2,6 @@ import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import sum from "lodash.sum";
-import { makeDate } from "../../utils";
 import Stats from "Components/Stats";
 import Pending from "Components/Pending";
 import {
@@ -42,7 +41,7 @@ const HomePresenter = ({ blocks, transactions, stats, mempool, mempoolFees }) =>
             <BlocksRow
               index={block.index}
               hash={block.hash}
-              timestamp={makeDate(block.timestamp)}
+              timestamp={block.timestamp}
               bits={block.bits}
               key={block.hash}
             />
@@ -63,7 +62,7 @@ const HomePresenter = ({ blocks, transactions, stats, mempool, mempoolFees }) =>
         ) : (
           transactions.map(transaction => (
             <TxRow
-              timestamp={makeDate(transaction.timestamp)}
+              timestamp={transaction.timestamp}
               id={transaction.id}
               insOuts={`${transaction.txIns.length}/${transaction.txOuts.length}`}
               amount={sum(transaction.txOuts.map(txOut => txOut.amount))}

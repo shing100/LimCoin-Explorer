@@ -1,5 +1,5 @@
 import React from "react";
-import { difficultyFromBits, formatDifficulty } from "../../utils";
+import { makeAgo, makeDate, difficultyFromBits, formatDifficulty } from "../../utils";
 import { Link } from "react-router-dom";
 import styled, { css } from "styled-components";
 import { radius, mono, breakpoint } from "../../theme";
@@ -130,10 +130,26 @@ export const Fee = styled(Cell)`
   color: var(--textFaint);
 `;
 
-export const Time = styled(Cell)`
+const TimeCell = styled(Cell)`
   font-size: 12.5px;
   color: var(--textFaint);
 `;
+
+/*
+ * 표 안의 시각.
+ *
+ * 초를 받아 "3분 전"으로 적고, 정확한 시각은 title 로 단다. 예전에는
+ * 부르는 쪽이 미리 만든 긴 문자열을 넘겨서 칸에 안 들어가 잘렸다 —
+ * 그것도 하필 시·분·초 자리에서.
+ */
+export const Time = ({ seconds, children, ...rest }) =>
+  seconds === undefined ? (
+    <TimeCell {...rest}>{children}</TimeCell>
+  ) : (
+    <TimeCell {...rest} title={makeDate(seconds)}>
+      {makeAgo(seconds)}
+    </TimeCell>
+  );
 
 export const Empty = styled.p`
   padding: 44px 18px;
@@ -143,10 +159,10 @@ export const Empty = styled.p`
 
 export const BlocksHeader = () => (
   <HeadRow layout="blocks">
-    <Cell>Index</Cell>
-    <Cell>Hash</Cell>
-    <Cell hideBelow="md">Timestamp</Cell>
-    <Cell hideBelow="sm">Difficulty</Cell>
+    <Cell>높이</Cell>
+    <Cell>해시</Cell>
+    <Cell hideBelow="md">시각</Cell>
+    <Cell hideBelow="sm">난이도</Cell>
   </HeadRow>
 );
 
@@ -155,18 +171,18 @@ export const BlocksRow = ({ index, hash, timestamp, bits }) => (
   <LinkRow layout="blocks" to={`/block/${hash}`}>
     <Index>{index}</Index>
     <Hash title={hash}>{hash}</Hash>
-    <Time hideBelow="md">{timestamp}</Time>
+    <Time hideBelow="md" seconds={timestamp} />
     <Num hideBelow="sm" title={`bits 0x${(bits || 0).toString(16)}`}>{formatDifficulty(difficultyFromBits(bits))}</Num>
   </LinkRow>
 );
 
 export const TxHeader = () => (
   <HeadRow layout="txs">
-    <Cell>Amount</Cell>
-    <Cell hideBelow="sm">Fee</Cell>
-    <Cell>ID</Cell>
-    <Cell hideBelow="sm">Ins/Outs</Cell>
-    <Cell hideBelow="md">Timestamp</Cell>
+    <Cell>금액</Cell>
+    <Cell hideBelow="sm">수수료</Cell>
+    <Cell>트랜잭션 ID</Cell>
+    <Cell hideBelow="sm">입력/출력</Cell>
+    <Cell hideBelow="md">시각</Cell>
   </HeadRow>
 );
 
@@ -183,7 +199,13 @@ export const TxRow = ({ timestamp, id, insOuts, amount, fee, pending }) => (
     </Fee>
     <Hash title={id}>{id}</Hash>
     <Cell hideBelow="sm">{insOuts}</Cell>
-    <Time hideBelow="md">{pending ? <Pill>대기 중</Pill> : timestamp}</Time>
+    {pending ? (
+      <Time hideBelow="md">
+        <Pill>대기 중</Pill>
+      </Time>
+    ) : (
+      <Time hideBelow="md" seconds={timestamp} />
+    )}
   </LinkRow>
 );
 
@@ -246,8 +268,9 @@ export const Pill = styled.span`
   display: inline-block;
   padding: 2px 9px;
   border-radius: 999px;
-  background: var(--accentSoft);
-  color: var(--accent);
+  /* 카드 위에도 페이지 배경 위에도 얹히므로 바탕을 불투명하게 고정한다 */
+  background: var(--accentBadge);
+  color: var(--accentBadgeText);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.03em;
