@@ -2,7 +2,6 @@ import React, { Component, Fragment } from "react";
 import styled from "styled-components";
 import { getBalance, getAddressTransactions, getAddressUtxos } from "../../api";
 import { formatLim } from "../../units";
-import { makeDate } from "../../utils";
 import { breakpoint } from "../../theme";
 import {
   Card, SectionTitle, SectionNote, Detail, DKey, DValue, Back, Empty,
@@ -40,12 +39,29 @@ const Head = HeadRow.extend`
 
 const Body = BodyRow.withComponent(Row);
 
+/*
+ * 받은 값과 보낸 값.
+ *
+ * 예전에는 `var(--positive, #1a7f37)` 이었다. 그런데 테마에 positive/negative
+ * 가 아예 없어서 **폴백만 쓰였다** — 라이트용 진한 초록·빨강이 다크 화면에도
+ * 그대로 나와 3.4:1 밖에 안 됐다. 토큰을 테마에 넣고 폴백을 지운다.
+ */
 const In = styled(Num)`
-  color: var(--positive, #1a7f37);
+  color: var(--positive);
 `;
 
 const Out = styled(Num)`
-  color: var(--negative, #cf222e);
+  color: var(--negative);
+`;
+
+/*
+ * "이쪽으로는 오간 게 없다"를 뜻하는 자리표시.
+ *
+ * 예전에는 In/Out 을 그대로 써서 빈 칸의 em 대시가 초록·빨강으로 칠해졌다.
+ * 아무 일도 없었다는 표시가 "보냄"으로 읽히면 안 된다. 값이 있을 때만 색을 쓴다.
+ */
+const None = styled(Num)`
+  color: var(--textFaint);
 `;
 
 const Block = styled(Cell)`
@@ -140,11 +156,11 @@ class Address extends Component {
         </SectionTitle>
         <Card>
           <Head>
-            <Cell>Block</Cell>
-            <Cell>Tx ID</Cell>
+            <Cell>블록</Cell>
+            <Cell>트랜잭션 ID</Cell>
             <Cell>받음</Cell>
             <Cell hideBelow="sm">보냄</Cell>
-            <Cell hideBelow="md">Timestamp</Cell>
+            <Cell hideBelow="md">시각</Cell>
           </Head>
           {transactions.length === 0 ? (
             <Empty>이 주소가 얽힌 트랜잭션이 없습니다.</Empty>
@@ -155,11 +171,17 @@ class Address extends Component {
                 <Hash title={tx.txId}>
                   <MonoLink to={`/tx/${tx.txId}`}>{tx.txId}</MonoLink>
                 </Hash>
-                <In>{tx.received > 0 ? `+${formatLim(tx.received)}` : "—"}</In>
-                <Out hideBelow="sm">
-                  {tx.spent > 0 ? `−${formatLim(tx.spent)}` : "—"}
-                </Out>
-                <Time hideBelow="md">{makeDate(tx.timestamp)}</Time>
+                {tx.received > 0 ? (
+                  <In>{`+${formatLim(tx.received)}`}</In>
+                ) : (
+                  <None>—</None>
+                )}
+                {tx.spent > 0 ? (
+                  <Out hideBelow="sm">{`−${formatLim(tx.spent)}`}</Out>
+                ) : (
+                  <None hideBelow="sm">—</None>
+                )}
+                <Time hideBelow="md" seconds={tx.timestamp} />
               </Body>
             ))
           )}
