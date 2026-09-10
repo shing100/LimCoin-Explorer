@@ -1,3 +1,5 @@
+<img src="public/icon.svg" width="72" height="72" alt="LimCoin">
+
 # LimCoin-Explorer
 
 React 로 만든 LimCoin 블록 익스플로러.
@@ -258,6 +260,32 @@ PORT=8080 API_URL=http://노드:3000 npm run serve
 
 첫 칠 이전에 `<html data-theme>` 를 붙이는 작은 동기 스크립트가
 `public/index.html` 에 있다. React 가 뜬 뒤에 붙이면 화면이 한 번 번쩍인다.
+
+## 로고
+
+브랜드 마크는 **금화 안에 블록 네 개로 쌓은 L** 이다 — 세로로 셋, 오른쪽
+아래로 뻗은 발 하나. 블록 사이의 틈이 "이어 붙인 블록"을 말한다.
+
+작은 데서 무너지지 않는 것을 첫 조건으로 잡았다. 틈을 넓게 벌린 시안은
+512px 에서는 그럴듯한데 16px 파비콘에서 점 세 개로 뭉개졌다. 지금 틈은
+1/64 이라 16px 에서는 사라져 통짜 L 로 읽히고, 48px 부터 블록이 드러난다.
+
+색은 **테마를 따르지 않는다.** 라이트에서도 같은 금화다. 처음에는 다른
+요소처럼 `--accent` 를 썼는데, 라이트에서 원이 짙은 갈색이 되어 금화로
+보이지 않았고 무엇보다 탭의 파비콘과 화면 속 로고가 서로 다른 물건처럼
+보였다.
+
+모양의 원본은 `src/logo.json` **하나뿐**이다. 화면 안의 로고
+(`Components/Logo`)와 파비콘·PWA 아이콘이 같은 좌표를 읽는다.
+
+```bash
+node scripts/icons.js         # SVG 만 (의존성 없음)
+node scripts/icons.js --png   # PNG·ICO 까지 (headless Chromium 필요)
+```
+
+`favicon.ico` 는 16·32·48 세 장을 담은 PNG-in-ICO 로 직접 묶는다
+(`scripts/icons.js` 의 `packIco`). 예전에는 **create-react-app 이 넣어 준
+리액트 로고가 그대로 남아 있었다** — 탭에 남의 상표가 떠 있었던 셈이다.
 
 ## 글꼴
 
