@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from "react";
+import { toKorean } from "../../errors";
+import { setPageMeta, shorten } from "../../meta";
 import sum from "lodash.sum";
 import { getBlock, getBlocks } from "../../api";
 import { makeDate, difficultyFromBits, formatDifficulty } from "../../utils";
 import { enrichTransactions } from "../../txinfo";
 import {
-  Card, SectionTitle, SectionNote, Detail, DKey, DValue, Back, Empty,
-  TxHeader, TxRow, Pill
+  Card, SectionTitle, SectionNote, Detail, DKey, DValue, Back, Empty, TxHeader, TxRow, Pill, MonoLink
 } from "Components/Shared";
 
 class Block extends Component {
@@ -44,10 +45,14 @@ class Block extends Component {
         }
       }
       this.setState({ block, loading: false });
+      setPageMeta(
+        `블록 #${block.index}`,
+        `높이 ${block.index}, 트랜잭션 ${(block.data || []).length}건, 해시 ${shorten(block.hash)}`
+      );
     } catch (e) {
       this.setState({
         loading: false,
-        error: e.response ? e.response.data : e.message
+        error: toKorean(e.response ? e.response.data : e.message)
       });
     }
   };
@@ -87,7 +92,17 @@ class Block extends Component {
             <DKey>해시</DKey>
             <DValue mono>{block.hash}</DValue>
             <DKey>이전 블록</DKey>
-            <DValue mono>{block.previousHash || "—"}</DValue>
+            {/*
+              예전에는 해시를 글자로만 찍었다. 블록을 거슬러 올라가는 것은
+              익스플로러의 가장 기본 동선인데 눌러도 아무 일이 없었다.
+            */}
+            <DValue mono>
+              {block.previousHash ? (
+                <MonoLink to={`/block/${block.previousHash}`}>{block.previousHash}</MonoLink>
+              ) : (
+                "— (제네시스 블록)"
+              )}
+            </DValue>
             <DKey>머클 루트</DKey>
             <DValue mono>{block.merkleRoot}</DValue>
             <DKey>시각</DKey>

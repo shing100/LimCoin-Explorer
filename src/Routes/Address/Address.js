@@ -1,4 +1,8 @@
 import React, { Component, Fragment } from "react";
+import ScriptDecoder from "Components/ScriptDecoder";
+import { addressKind } from "../../utils";
+import { toKorean } from "../../errors";
+import { setPageMeta, shorten } from "../../meta";
 import styled from "styled-components";
 import { getBalance, getAddressTransactions, getAddressUtxos } from "../../api";
 import { formatLim } from "../../units";
@@ -108,10 +112,14 @@ class Address extends Component {
         page,
         loading: false
       });
+      setPageMeta(
+        `주소 ${shorten(address, 6, 6)}`,
+        `잔액 ${formatLim(balance)} LIM, 트랜잭션 ${history.total}건, 미사용 출력 ${utxos.length}개`
+      );
     } catch (e) {
       this.setState({
         loading: false,
-        error: e.response ? e.response.data : e.message
+        error: toKorean(e.response ? e.response.data : e.message)
       });
     }
   };
@@ -122,6 +130,7 @@ class Address extends Component {
     } = this.state;
     const { address } = this.props.match.params;
     const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1);
+    const kind = addressKind(address);
 
     if (loading) {
       return <Empty>불러오는 중…</Empty>;
@@ -149,6 +158,9 @@ class Address extends Component {
             <DValue>{utxoCount}개</DValue>
           </Detail>
         </Card>
+
+        {/* 조건으로 잠긴 주소(M…/2…)면 그 조건을 풀어 볼 수 있게 한다 */}
+        {kind && kind.label === "스크립트" && <ScriptDecoder address={address} />}
 
         <SectionTitle style={{ marginTop: 30 }}>
           트랜잭션

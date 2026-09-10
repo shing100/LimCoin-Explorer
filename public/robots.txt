@@ -1,0 +1,13 @@
+# 블록·트랜잭션·주소 상세는 수가 무한하고 내용도 계속 바뀐다.
+# 크롤러가 체인 전체를 훑게 두면 노드에 부담만 되고 얻는 것이 없다.
+# 목록 화면만 열어 둔다.
+User-agent: *
+Allow: /$
+Allow: /blocks
+Allow: /transactions
+Allow: /network
+Allow: /api
+Disallow: /block/
+Disallow: /height/
+Disallow: /tx/
+Disallow: /address/

@@ -1,15 +1,17 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "name": "LimCoin 익스플로러",
+  "short_name": "LimCoin",
+  "description": "LimCoin 블록체인 익스플로러. 블록, 트랜잭션, 주소를 찾아봅니다.",
+  "lang": "ko",
   "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    }
+    { "src": "favicon.ico", "sizes": "16x16 24x24 32x32 64x64", "type": "image/x-icon" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
-  "start_url": "./index.html",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#0d1117",
+  "background_color": "#0d1117"
 }

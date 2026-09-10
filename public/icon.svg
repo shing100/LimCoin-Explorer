@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+    <rect width="512" height="512" fill="#161b22"/>
+    <circle cx="256" cy="256" r="225.28" fill="#e0a82e"/>
+    <text x="256" y="256" fill="#161b22" font-family="Pretendard, -apple-system, Helvetica, Arial, sans-serif"
+      font-size="259" font-weight="800" text-anchor="middle" dominant-baseline="central">L</text>
+  </svg>
