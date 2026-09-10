@@ -157,6 +157,29 @@ src/
 `/blocks` 로 직접 들어갔을 때 404 가 난다. (nginx 의 `try_files`,
 Netlify 의 `_redirects`, GitHub Pages 라면 `HashRouter` 로 바꾸는 방법)
 
+## 화면
+
+| 경로 | 무엇 |
+|---|---|
+| `/` | 최근 블록·트랜잭션, 대기 중인 것 |
+| `/blocks` · `/transactions` | 목록 (페이지 나눔) |
+| `/block/:hash` · `/height/:n` · `/tx/:id` · `/address/:a` | 상세 |
+| `/network` | 피어, 권장 수수료, 이 노드 정보 |
+| `/broadcast` | 밖에서 서명한 raw 트랜잭션 제출 (키는 받지 않는다) |
+| `/api` | 이 노드의 REST·JSON-RPC 목록 |
+
+P2SH 주소(`M…`/`2…`)는 조건의 해시라 체인만 봐서는 무슨 조건인지 알 수 없다.
+주소 화면에서 아는 `redeemScript` 를 붙여 넣으면 노드가 풀어 준다 —
+다중서명 몇 개 중 몇 개인지, 언제까지 잠겨 있는지.
+
+## 링크 공유의 한계
+
+화면마다 `<title>` 과 설명이 바뀌므로 탭·북마크·방문 기록은 구분된다.
+다만 **카카오톡·트위터 같은 링크 미리보기 봇은 자바스크립트를 돌리지 않아**
+`public/index.html` 의 정적 기본값만 본다. 블록·트랜잭션마다 다른 미리보기를
+주려면 서버가 화면마다 HTML 을 만들어 내려 줘야 한다(SSR). 지금은 정적 파일을
+그대로 내려 주는 구조다.
+
 ## 글꼴
 
 본문은 [Pretendard](https://github.com/orioncactus/pretendard)(SIL OFL 1.1)를 쓴다.

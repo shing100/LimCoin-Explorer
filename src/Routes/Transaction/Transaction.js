@@ -1,4 +1,6 @@
 import React, { Component, Fragment } from "react";
+import { toKorean } from "../../errors";
+import { setPageMeta, shorten } from "../../meta";
 import styled from "styled-components";
 import { getTransaction, getTxProof } from "../../api";
 import { formatLim } from "../../units";
@@ -73,6 +75,12 @@ class Transaction extends Component {
     try {
       const tx = await getTransaction(id);
       this.setState({ tx, loading: false });
+      setPageMeta(
+        `트랜잭션 ${shorten(tx.id)}`,
+        tx.pending
+          ? "아직 블록에 담기지 않은 트랜잭션입니다."
+          : `블록 #${tx.blockIndex} 에 담긴 트랜잭션. 확인 ${tx.confirmations}회.`
+      );
       // 증명은 부수적이라 실패해도 본문은 보여 준다
       // (mempool 에 있는 트랜잭션은 아직 블록에 없으므로 증명이 없다)
       try {
@@ -83,7 +91,7 @@ class Transaction extends Component {
     } catch (e) {
       this.setState({
         loading: false,
-        error: e.response ? e.response.data : e.message
+        error: toKorean(e.response ? e.response.data : e.message)
       });
     }
   };

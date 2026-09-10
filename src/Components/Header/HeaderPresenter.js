@@ -60,6 +60,21 @@ const Coin = styled.span`
   font-weight: 800;
 `;
 
+/*
+ * 좁은 화면에서 숨기는 묶음.
+ *
+ * 메뉴가 다섯이면 390px 에서 두 줄이 되고 검색창이 아래로 밀린다. 검색이
+ * 익스플로러의 주 동선이라 그쪽을 지킨다 — 숨긴 화면은 홈 아래쪽 링크와
+ * 직접 주소로 갈 수 있다.
+ */
+const WideOnly = styled.span`
+  display: contents;
+
+  @media (max-width: ${breakpoint.md}) {
+    display: none;
+  }
+`;
+
 const Nav = styled.nav`
   display: flex;
   align-items: center;
@@ -170,6 +185,15 @@ const HeaderPresenter = ({ live }) => (
         <NavItem to="/transactions" activeClassName="active">
           트랜잭션
         </NavItem>
+        {/* 좁은 화면에서는 접는다 — 넣으면 한 줄을 넘겨 검색창을 밀어낸다 */}
+        <WideOnly>
+          <NavItem to="/network" activeClassName="active">
+            네트워크
+          </NavItem>
+          <NavItem to="/api" activeClassName="active">
+            API
+          </NavItem>
+        </WideOnly>
       </Nav>
     </Inner>
   </Bar>
