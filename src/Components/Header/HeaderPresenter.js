@@ -5,6 +5,7 @@ import { Link, NavLink } from "react-router-dom";
 import { breakpoint, radius, space, tap } from "../../theme";
 import Search from "Components/Search";
 import ThemeToggle from "Components/ThemeToggle";
+import Logo from "Components/Logo";
 
 const Bar = styled.header`
   width: 100%;
@@ -47,18 +48,6 @@ const Brand = styled(Link)`
   @media (max-width: ${breakpoint.sm}) {
     min-height: ${tap.touch};
   }
-`;
-
-const Coin = styled.span`
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--surface);
-  font-size: 13px;
-  font-weight: 800;
 `;
 
 /*
@@ -169,7 +158,11 @@ const HeaderPresenter = ({ live }) => (
   <Bar>
     <Inner>
       <Brand to="/">
-        <Coin>L</Coin>
+        {/*
+          마크 옆에 "LimCoin" 이 글자로 붙어 있으므로 로고에는 이름을 주지
+          않는다 — 주면 화면 읽어 주는 도구가 "LimCoin LimCoin" 으로 읽는다.
+        */}
+        <Logo size={26} />
         LimCoin
         <Live on={live} title={live ? "노드와 연결되어 있습니다" : "연결이 끊겼습니다. 다시 붙는 중입니다."}>
           <span>{live ? "실시간" : "연결 끊김"}</span>
