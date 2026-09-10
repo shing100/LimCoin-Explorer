@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Link, NavLink } from "react-router-dom";
 import { breakpoint, radius, space, tap } from "../../theme";
 import Search from "Components/Search";
+import ThemeToggle from "Components/ThemeToggle";
 
 const Bar = styled.header`
   width: 100%;
@@ -187,13 +188,21 @@ const HeaderPresenter = ({ live }) => (
         </NavItem>
         {/* 좁은 화면에서는 접는다 — 넣으면 한 줄을 넘겨 검색창을 밀어낸다 */}
         <WideOnly>
+          <NavItem to="/charts" activeClassName="active">
+            차트
+          </NavItem>
+          <NavItem to="/richlist" activeClassName="active">
+            부자 목록
+          </NavItem>
           <NavItem to="/network" activeClassName="active">
             네트워크
           </NavItem>
-          <NavItem to="/api" activeClassName="active">
-            API
-          </NavItem>
         </WideOnly>
+        {/*
+          밝기 단추는 접지 않는다. 좁은 화면(휴대폰)이야말로 밖에서 밝은 데
+          있거나 침대에서 보는 쪽이라 더 자주 쓴다. 아이콘 하나라 자리도 덜 먹는다.
+        */}
+        <ThemeToggle />
       </Nav>
     </Inner>
   </Bar>

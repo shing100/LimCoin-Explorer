@@ -10,6 +10,8 @@ import Block from "Routes/Block";
 import Transaction from "Routes/Transaction";
 import Address from "Routes/Address";
 import Network from "Routes/Network";
+import Charts from "Routes/Charts";
+import RichList from "Routes/RichList";
 import Broadcast from "Routes/Broadcast";
 import Api from "Routes/Api";
 import NotFound from "Routes/NotFound";
@@ -173,6 +175,12 @@ const AppPresenter = ({
                   path="/network"
                   render={() => <Network info={info} />}
                 />
+                <Route
+                  exact
+                  path="/charts"
+                  render={() => <Charts info={info} />}
+                />
+                <Route exact path="/richlist" component={RichList} />
                 <Route exact path="/broadcast" component={Broadcast} />
                 <Route exact path="/api" component={Api} />
                 <Route path="/block/:hash" component={Block} />
@@ -188,6 +196,8 @@ const AppPresenter = ({
             )}
         </Main>
         <Footer>
+          <Link to="/charts">차트</Link>
+          <Link to="/richlist">부자 목록</Link>
           <Link to="/network">네트워크</Link>
           <Link to="/broadcast">트랜잭션 보내기</Link>
           <Link to="/api">API</Link>

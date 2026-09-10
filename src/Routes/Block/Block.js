@@ -2,7 +2,7 @@ import React, { Component, Fragment } from "react";
 import { toKorean } from "../../errors";
 import { setPageMeta, shorten } from "../../meta";
 import sum from "lodash.sum";
-import { getBlock, getBlocks } from "../../api";
+import { getBlock, getBlockByHeight } from "../../api";
 import { makeDate, difficultyFromBits, formatDifficulty } from "../../utils";
 import { enrichTransactions } from "../../txinfo";
 import {
@@ -26,24 +26,16 @@ class Block extends Component {
     const { hash, height } = this.props.match.params;
     this.setState({ loading: true, error: null });
     try {
-      let block;
-      if (hash) {
-        block = await getBlock(hash);
-      } else {
-        // 높이로 들어온 경우. 노드에 높이 조회가 없어 목록에서 집어 온다.
-        // 전체 개수는 X-Total-Count 헤더에서 온다.
-        const { total } = await getBlocks(1, 0);
-        const target = Number(height);
-        if (!Number.isInteger(target) || target < 0 || target >= total) {
-          throw new Error(`범위를 벗어난 블록 높이입니다 (0 ~ ${total - 1})`);
-        }
-        // 최신순으로 오므로 offset = (총 개수 - 1) - 높이
-        const page = await getBlocks(1, total - 1 - target);
-        block = page.blocks[0];
-        if (!block) {
-          throw new Error("블록을 찾을 수 없습니다");
-        }
-      }
+      /*
+       * 높이로 들어오면 노드에 높이로 묻는다.
+       *
+       * 예전에는 노드에 그 길이 없어서 목록을 두 번 불러 offset 을 계산했다.
+       * 요청이 두 번인 것도 문제였지만, 그 사이에 블록이 하나 나오면 한 칸
+       * 어긋난 블록을 보여 주는 것이 더 큰 문제였다.
+       */
+      const block = hash
+        ? await getBlock(hash)
+        : await getBlockByHeight(Number(height));
       this.setState({ block, loading: false });
       setPageMeta(
         `블록 #${block.index}`,
