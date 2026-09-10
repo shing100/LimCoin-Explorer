@@ -21,6 +21,16 @@ export const getBlocks = async (limit, offset = 0) => {
 export const getBlock = async hash =>
   (await axios.get(`${API_URL}/blocks/${hash}`)).data;
 
+/*
+ * 높이로 블록 하나.
+ *
+ * 예전에는 이 길이 없어서 /blocks 를 두 번 불렀다 — 한 번은 총 개수를 알려고,
+ * 또 한 번은 (총 개수 - 1 - 높이) 를 offset 으로 넣어 한 개를 집으려고.
+ * 그 사이에 블록이 하나 더 나오면 어긋나는 방법이기도 했다.
+ */
+export const getBlockByHeight = async height =>
+  (await axios.get(`${API_URL}/blocks/height/${height}`)).data;
+
 export const getTransaction = async id =>
   (await axios.get(`${API_URL}/transactions/${id}`)).data;
 
@@ -87,3 +97,17 @@ export const decodeScript = async redeemScript =>
  */
 export const broadcastRawTx = async tx =>
   (await axios.post(`${API_URL}/transactions/raw`, tx)).data;
+
+/*
+ * 최근 블록의 난이도·간격·트랜잭션 수. 차트 화면이 쓴다.
+ *
+ * /blocks 를 여러 페이지 받아 프론트에서 계산할 수도 있지만, 2000 블록을
+ * 그리려면 본문까지 전부 받아야 한다(수백 MB). 노드는 헤더만 보고 만들 수
+ * 있으므로 노드에서 만들어 준다.
+ */
+export const getBlockSeries = async (limit = 200) =>
+  (await axios.get(`${API_URL}/stats/blocks`, { params: { limit } })).data;
+
+// 잔액 많은 주소 순위
+export const getRichList = async (limit = 50) =>
+  (await axios.get(`${API_URL}/richlist`, { params: { limit } })).data;

@@ -20,11 +20,14 @@
       익스플로러의 주된 쓰임이 링크를 뿌리는 것이다 — "이 트랜잭션 봐라",
       거래소에 입금 증빙. 그런데 미리보기가 빈칸이면 그 쓰임이 반쯤 죽는다.
 
-      한계는 정직하게 적어 둔다: 여기 적은 것은 **정적 기본값**이다. 블록이나
-      트랜잭션마다 다른 미리보기를 주려면 서버가 HTML 을 만들어 내려 줘야
-      한다(SSR). 지금은 정적 파일을 그대로 내려 주는 구조라, 링크 미리보기
-      봇(카카오톡·트위터 등 JS 를 실행하지 않는 것들)은 이 기본값만 본다.
-      브라우저 탭 제목과 북마크는 화면마다 바뀐다(src/meta.js).
+      여기 적은 것은 **기본값**이다. 블록이나 트랜잭션마다 다른 미리보기는
+      server/ 의 작은 서버가 내려 주기 직전에 이 태그들을 갈아 끼워 만든다
+      (`npm run serve`). 태그 이름이나 모양을 여기서 바꾸면 server/index.js
+      의 치환 규칙도 같이 고쳐야 한다 — 안 고치면 서버가 경고를 찍는다.
+
+      정적 파일만 올리는 곳(S3, GitHub Pages)에 배포하면 그 서버가 없으므로
+      링크 미리보기 봇은 이 기본값만 본다. 브라우저 탭 제목과 북마크는 어느
+      쪽이든 화면마다 바뀐다(src/meta.js).
     -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="LimCoin 익스플로러">
@@ -52,6 +55,28 @@
       그만큼 늦어진다.
     -->
     <link rel="stylesheet" href="%PUBLIC_URL%/fonts/pretendard/pretendard.css">
+
+    <!--
+      고른 밝기를 첫 칠 이전에 붙인다.
+
+      React 가 뜬 뒤에 붙이면, OS 가 라이트인 사람이 다크를 골라 둔 경우
+      흰 화면이 한 번 번쩍이고 나서 어두워진다. 이 스크립트가 <head> 안의
+      동기 스크립트여야 하는 이유다 — 여기서 멈춰 실행된 뒤에 <body> 가
+      그려진다. 실제 색 규칙은 CSS(globalStyles.js)에 있고 여기서는
+      속성만 얹는다.
+    -->
+    <script>
+      (function () {
+        try {
+          var mode = window.localStorage.getItem("limcoin.theme");
+          if (mode === "light" || mode === "dark") {
+            document.documentElement.setAttribute("data-theme", mode);
+          }
+        } catch (e) {
+          /* 저장소가 막혀 있으면 OS 설정을 따른다 */
+        }
+      })();
+    </script>
   </head>
   <body>
     <noscript>

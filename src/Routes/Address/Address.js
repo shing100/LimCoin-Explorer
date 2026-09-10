@@ -1,14 +1,17 @@
 import React, { Component, Fragment } from "react";
 import ScriptDecoder from "Components/ScriptDecoder";
+import QrCode from "Components/QrCode";
+import CopyButton from "Components/CopyButton";
 import { addressKind } from "../../utils";
 import { toKorean } from "../../errors";
 import { setPageMeta, shorten } from "../../meta";
 import styled from "styled-components";
 import { getBalance, getAddressTransactions, getAddressUtxos } from "../../api";
 import { formatLim } from "../../units";
-import { breakpoint } from "../../theme";
+import { breakpoint, space, radius, mono, tap } from "../../theme";
+import { downloadCsv } from "../../csv";
 import {
-  Card, SectionTitle, SectionNote, Detail, DKey, DValue, Back, Empty,
+  Card, SectionTitle, SectionNote, Back, Empty,
   HeadRow, BodyRow, Cell, Hash, Num, Time, MonoLink, Pager, PagerButton
 } from "Components/Shared";
 
@@ -74,6 +77,123 @@ const Block = styled(Cell)`
   color: var(--accent);
 `;
 
+/*
+ * 주소 카드 = 왼쪽에 값들, 오른쪽에 QR.
+ *
+ * 좁아지면 QR 이 위로 올라가고 값이 아래로 간다. QR 을 아래에 두면 휴대폰
+ * 에서 스크롤을 내려야 나오는데, 휴대폰이야말로 QR 을 찍는 화면이다.
+ */
+const Identity = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: ${space.lg};
+  padding: ${space.lg};
+
+  @media (max-width: ${breakpoint.sm}) {
+    flex-direction: column-reverse;
+    align-items: center;
+    padding: ${space.md};
+  }
+`;
+
+const Facts = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const AddressLine = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${space.sm};
+  flex-wrap: wrap;
+  margin-bottom: ${space.md};
+`;
+
+const AddressText = styled.span`
+  min-width: 0;
+  font-family: ${mono};
+  font-size: 13px;
+  overflow-wrap: anywhere;
+`;
+
+const Label = styled.p`
+  margin: 0 0 ${space.xs};
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--textMuted);
+`;
+
+const Balance = styled.p`
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+`;
+
+const BalanceUnit = styled.span`
+  margin-left: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+`;
+
+const Sub = styled.p`
+  margin: ${space.xs} 0 0;
+  font-size: 12.5px;
+  color: var(--textMuted);
+`;
+
+const QrNote = styled.p`
+  margin: ${space.xs} 0 0;
+  font-size: 11px;
+  text-align: center;
+  color: var(--textFaint);
+`;
+
+const QrSide = styled.div`
+  flex: none;
+`;
+
+const Tools = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${space.sm};
+  /* 제목은 baseline 정렬이라 단추가 글자 아랫선에 걸린다 — 따로 가운데로 */
+  align-self: center;
+  margin-left: auto;
+`;
+
+const ToolButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: ${tap.mouse};
+  padding: 0 ${space.md};
+  border: 1px solid var(--border);
+  border-radius: ${radius.sm};
+  background: var(--surface);
+  color: var(--textMuted);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover { border-color: var(--borderStrong); color: var(--text); }
+  &:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accentSoft);
+  }
+  &:disabled { opacity: .5; cursor: default; }
+
+  @media (max-width: ${breakpoint.sm}) {
+    min-height: ${tap.touch};
+  }
+`;
+
 class Address extends Component {
   state = {
     balance: null,
@@ -82,7 +202,9 @@ class Address extends Component {
     total: 0,
     page: 0,
     error: null,
-    loading: true
+    loading: true,
+    csvBusy: false,
+    csvNote: null
   };
 
   componentDidMount() {
@@ -124,9 +246,78 @@ class Address extends Component {
     }
   };
 
+  componentWillUnmount() {
+    this._gone = true;
+  }
+
+  /*
+   * 내역 전체를 CSV 로.
+   *
+   * 화면은 25건씩 보여 주지만 파일은 전부 담아야 쓸모가 있다 — 세금 정리를
+   * 하는 사람이 페이지를 넘겨 가며 40번 내려받게 할 수는 없다. 노드에
+   * 200건씩 나눠 묻는다(한 번에 다 달라고 하면 노드 쪽 메모리가 튄다).
+   */
+  _csv = async () => {
+    const { address } = this.props.match.params;
+    const { total } = this.state;
+    const CHUNK = 200;
+    const MAX = 20000;
+
+    this.setState({ csvBusy: true, csvNote: null });
+    try {
+      const rows = [];
+      const cap = Math.min(total, MAX);
+      for (let offset = 0; offset < cap; offset += CHUNK) {
+        const page = await getAddressTransactions(address, CHUNK, offset);
+        if (page.transactions.length === 0) {
+          break;
+        }
+        page.transactions.forEach(tx => rows.push(tx));
+      }
+      if (this._gone) {
+        return;
+      }
+
+      downloadCsv(
+        `limcoin-${address}.csv`,
+        [
+          "블록", "시각(UTC)", "트랜잭션 ID",
+          "받음(LIM)", "보냄(LIM)", "순변동(LIM)",
+          "받음(lm)", "보냄(lm)"
+        ],
+        rows.map(tx => [
+          tx.blockIndex,
+          new Date(tx.timestamp * 1000).toISOString(),
+          tx.txId,
+          formatLim(tx.received),
+          formatLim(tx.spent),
+          formatLim(tx.received - tx.spent),
+          tx.received,
+          tx.spent
+        ])
+      );
+
+      this.setState({
+        csvBusy: false,
+        csvNote:
+          total > MAX
+            ? `내역이 ${total.toLocaleString()}건이라 최근 ${MAX.toLocaleString()}건까지만 담았습니다.`
+            : null
+      });
+    } catch (e) {
+      if (!this._gone) {
+        this.setState({
+          csvBusy: false,
+          csvNote: toKorean(e.response ? e.response.data : e.message)
+        });
+      }
+    }
+  };
+
   render() {
     const {
-      balance, utxoCount, transactions, total, page, error, loading
+      balance, utxoCount, transactions, total, page, error, loading,
+      csvBusy, csvNote
     } = this.state;
     const { address } = this.props.match.params;
     const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1);
@@ -149,14 +340,28 @@ class Address extends Component {
         <Back to="/">← 홈</Back>
         <SectionTitle>주소</SectionTitle>
         <Card>
-          <Detail>
-            <DKey>주소</DKey>
-            <DValue mono>{address}</DValue>
-            <DKey>잔액</DKey>
-            <DValue>{formatLim(balance)} LIM</DValue>
-            <DKey>미사용 출력</DKey>
-            <DValue>{utxoCount}개</DValue>
-          </Detail>
+          <Identity>
+            <Facts>
+              <Label>주소</Label>
+              <AddressLine>
+                <AddressText>{address}</AddressText>
+                <CopyButton value={address} label="복사" />
+              </AddressLine>
+              <Label>잔액</Label>
+              <Balance>
+                {formatLim(balance)}
+                <BalanceUnit>LIM</BalanceUnit>
+              </Balance>
+              <Sub>
+                미사용 출력 {utxoCount}개 · 트랜잭션 {total.toLocaleString()}건
+                {kind ? ` · ${kind.label} 주소` : ""}
+              </Sub>
+            </Facts>
+            <QrSide>
+              <QrCode value={address} title={`주소 ${address} 의 QR 코드`} />
+              <QrNote>휴대폰으로 찍어 옮기기</QrNote>
+            </QrSide>
+          </Identity>
         </Card>
 
         {/* 조건으로 잠긴 주소(M…/2…)면 그 조건을 풀어 볼 수 있게 한다 */}
@@ -165,7 +370,13 @@ class Address extends Component {
         <SectionTitle style={{ marginTop: 30 }}>
           트랜잭션
           <SectionNote>전체 {total.toLocaleString()}건</SectionNote>
+          <Tools>
+            <ToolButton type="button" onClick={this._csv} disabled={csvBusy || total === 0}>
+              {csvBusy ? "모으는 중…" : "CSV 내려받기"}
+            </ToolButton>
+          </Tools>
         </SectionTitle>
+        {csvNote && <Sub>{csvNote}</Sub>}
         <Card>
           <Head>
             <Cell>블록</Cell>
