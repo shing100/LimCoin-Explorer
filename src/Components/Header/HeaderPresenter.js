@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { Link, NavLink } from "react-router-dom";
-import { breakpoint } from "../../theme";
+import { breakpoint, radius, space, tap } from "../../theme";
 import Search from "Components/Search";
 
 const Bar = styled.header`
@@ -15,28 +15,37 @@ const Inner = styled.div`
   max-width: 1000px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 20px;
-  min-height: 62px;
+  padding: 0 ${space.xl};
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: ${space.lg};
   flex-wrap: wrap;
-  padding-bottom: 0;
 
   @media (max-width: ${breakpoint.md}) {
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding: ${space.md} ${space.lg};
+  }
+
+  @media (max-width: ${breakpoint.sm}) {
+    padding: ${space.md};
+    gap: ${space.md};
   }
 `;
 
 const Brand = styled(Link)`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: ${space.sm};
+  /* 로고도 링크다 — 손가락으로 누를 만한 높이를 준다 */
+  min-height: ${tap.mouse};
   font-size: 16px;
   font-weight: 800;
   letter-spacing: -0.02em;
+
+  @media (max-width: ${breakpoint.sm}) {
+    min-height: ${tap.touch};
+  }
 `;
 
 const Coin = styled.span`
@@ -54,7 +63,7 @@ const Coin = styled.span`
 const Nav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: ${space.xs};
 `;
 
 /*
@@ -63,8 +72,15 @@ const Nav = styled.nav`
  * NavLink 는 라우터가 직접 active 클래스를 붙여 준다.
  */
 const NavItem = styled(NavLink)`
-  padding: 7px 12px;
-  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  /*
+   * 마우스로는 28px 도 눌리지만 손가락으로는 아니다. 좁은 화면에서만
+   * 44px 로 키운다 — 데스크톱이 헐거워 보이지 않으면서 휴대폰에서 눌린다.
+   */
+  min-height: ${tap.mouse};
+  padding: ${space.sm} ${space.md};
+  border-radius: ${radius.sm};
   font-size: 13.5px;
   font-weight: 600;
   color: var(--textMuted);
@@ -78,7 +94,8 @@ const NavItem = styled(NavLink)`
   }
 
   @media (max-width: ${breakpoint.sm}) {
-    padding: 7px 9px;
+    min-height: ${tap.touch};
+    padding: ${space.sm} ${space.md};
   }
 `;
 
@@ -91,7 +108,7 @@ const NavItem = styled(NavLink)`
 const Live = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: ${space.xs};
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -99,17 +116,36 @@ const Live = styled.span`
 
   &::before {
     content: "";
-    width: 7px;
-    height: 7px;
+    flex: none;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: ${props => (props.on ? "var(--accent)" : "var(--border)")};
   }
 
-  /* 좁은 화면에서는 점만 남긴다. 글자는 자리를 너무 많이 차지하고,
-     연결 상태는 오히려 모바일에서 더 알고 싶은 것이다. */
+  /*
+   * 좁은 화면에서는 점만 남긴다. 글자는 자리를 너무 많이 차지하고,
+   * 연결 상태는 오히려 작은 화면에서 더 알고 싶은 것이다.
+   *
+   * 예전에는 font-size: 0 으로 지웠다. 눈에는 같아 보이지만 "0px 글자"가
+   * 남아 있는 셈이라, 화면을 읽어 주는 도구나 글자 크기를 키운 사용자에게
+   * 이상하게 걸린다. 자리만 없애고 글자는 그대로 두는 방법을 쓴다.
+   */
   @media (max-width: ${breakpoint.sm}) {
-    font-size: 0;
     gap: 0;
+
+    /* 스크린 리더는 읽고 화면에서는 사라진다 */
+    & > span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
 `;
 
@@ -120,7 +156,7 @@ const HeaderPresenter = ({ live }) => (
         <Coin>L</Coin>
         LimCoin
         <Live on={live} title={live ? "노드와 연결되어 있습니다" : "연결이 끊겼습니다. 다시 붙는 중입니다."}>
-          {live ? "실시간" : "연결 끊김"}
+          <span>{live ? "실시간" : "연결 끊김"}</span>
         </Live>
       </Brand>
       <Search />

@@ -9,7 +9,7 @@ import Transactions from "Routes/Transactions";
 import Block from "Routes/Block";
 import Transaction from "Routes/Transaction";
 import Address from "Routes/Address";
-import { radius } from "../../theme";
+import { radius, space, breakpoint } from "../../theme";
 import { enrichTransactions } from "../../txinfo";
 
 const Shell = styled.div`
@@ -23,12 +23,20 @@ const Main = styled.main`
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
-  padding: 30px 20px 60px;
+  padding: ${space.xxl} ${space.xl} ${space.huge};
+
+  @media (max-width: ${breakpoint.md}) {
+    padding: ${space.xl} ${space.lg} ${space.xxl};
+  }
+
+  @media (max-width: ${breakpoint.sm}) {
+    padding: ${space.lg} ${space.md} ${space.xxl};
+  }
 `;
 
 const Message = styled.p`
-  margin-top: 60px;
-  padding: 18px;
+  margin-top: ${space.huge};
+  padding: ${space.lg};
   text-align: center;
   color: var(--textMuted);
   background: var(--surface);

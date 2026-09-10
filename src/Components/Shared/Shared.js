@@ -2,7 +2,7 @@ import React from "react";
 import { makeAgo, makeDate, difficultyFromBits, formatDifficulty } from "../../utils";
 import { Link } from "react-router-dom";
 import styled, { css } from "styled-components";
-import { radius, mono, breakpoint } from "../../theme";
+import { radius, mono, breakpoint, space, tap } from "../../theme";
 import { formatLim } from "../../units";
 
 export const Card = styled.div`
@@ -16,8 +16,8 @@ export const Card = styled.div`
 export const SectionTitle = styled.h2`
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  margin: 0 0 14px;
+  gap: ${space.sm};
+  margin: 0 0 ${space.md};
   font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -58,9 +58,15 @@ const layouts = {
 const Row = styled.div`
   display: grid;
   align-items: center;
-  gap: 16px;
-  padding: 12px 18px;
+  gap: ${space.lg};
+  padding: ${space.md} ${space.lg};
   ${props => layouts[props.layout]};
+
+  /* 좁아지면 좌우 여백을 줄여 내용에 자리를 내준다 */
+  @media (max-width: ${breakpoint.sm}) {
+    gap: ${space.md};
+    padding: ${space.md};
+  }
 `;
 
 export const HeadRow = styled(Row)`
@@ -152,7 +158,7 @@ export const Time = ({ seconds, children, ...rest }) =>
   );
 
 export const Empty = styled.p`
-  padding: 44px 18px;
+  padding: ${space.huge} ${space.lg};
   text-align: center;
   color: var(--textFaint);
 `;
@@ -212,12 +218,30 @@ export const TxRow = ({ timestamp, id, insOuts, amount, fee, pending }) => (
 
 /* ----------------------------------------------- 상세 페이지 공용 */
 
+/*
+ * 뒤로 가기. 글자 두 개뿐이라 누르는 자리가 26x20 밖에 안 됐다 —
+ * 보이는 모양은 그대로 두고 좌우로 여백을 줘서 넓힌다.
+ */
 export const Back = styled(Link)`
-  display: inline-block;
-  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  min-height: ${tap.mouse};
+  padding: 0 ${space.sm};
+  margin-left: -${space.sm};
+  margin-bottom: ${space.sm};
+  border-radius: ${radius.sm};
   font-size: 13px;
   color: var(--textMuted);
+
   &:hover { color: var(--accent); }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accentSoft);
+  }
+
+  @media (max-width: ${breakpoint.sm}) {
+    min-height: ${tap.touch};
+  }
 `;
 
 // 키-값을 나열하는 상세 표
@@ -233,7 +257,7 @@ export const Detail = styled.dl`
 `;
 
 export const DKey = styled.dt`
-  padding: 11px 18px;
+  padding: ${space.md} ${space.lg};
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -250,23 +274,38 @@ export const DKey = styled.dt`
 export const DValue = styled.dd`
   min-width: 0;
   margin: 0;
-  padding: 11px 18px;
+  padding: ${space.md} ${space.lg};
   border-bottom: 1px solid var(--border);
   overflow-wrap: anywhere;
   ${props => props.mono && `font-family: ${mono}; font-size: 12.5px;`}
 `;
 
+/*
+ * 표 안의 긴 값(트랜잭션 id)으로 가는 링크.
+ *
+ * 글자 높이(15px)만큼만 눌렸다. 줄 전체가 링크인 다른 표와 달리 여기서는
+ * 이것이 유일한 과녁이라, 줄 높이만큼 세로로 채운다.
+ */
 export const MonoLink = styled(Link)`
+  display: flex;
+  align-items: center;
+  min-height: ${tap.mouse};
   font-family: ${mono};
   font-size: 12.5px;
   color: var(--accent);
   overflow-wrap: anywhere;
+
   &:hover { text-decoration: underline; }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accentSoft);
+    border-radius: ${radius.sm};
+  }
 `;
 
 export const Pill = styled.span`
   display: inline-block;
-  padding: 2px 9px;
+  padding: 2px ${space.sm};
   border-radius: 999px;
   /* 카드 위에도 페이지 배경 위에도 얹히므로 바탕을 불투명하게 고정한다 */
   background: var(--accentBadge);
@@ -280,14 +319,15 @@ export const Pager = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  margin-top: 18px;
+  gap: ${space.md};
+  margin-top: ${space.lg};
   font-size: 13px;
   color: var(--textMuted);
 `;
 
 export const PagerButton = styled.button`
-  padding: 7px 14px;
+  min-height: ${tap.mouse};
+  padding: ${space.sm} ${space.lg};
   border: 1px solid var(--border);
   border-radius: ${radius.sm};
   background: var(--surface);
@@ -298,4 +338,8 @@ export const PagerButton = styled.button`
 
   &:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
   &:disabled { opacity: .4; cursor: not-allowed; }
+
+  @media (max-width: ${breakpoint.sm}) {
+    min-height: ${tap.touch};
+  }
 `;
