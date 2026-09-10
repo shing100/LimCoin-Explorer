@@ -156,3 +156,15 @@ src/
 `index.html` 로 되돌려주는 설정(SPA fallback)이 필요**하다. 이 설정이 없으면
 `/blocks` 로 직접 들어갔을 때 404 가 난다. (nginx 의 `try_files`,
 Netlify 의 `_redirects`, GitHub Pages 라면 `HashRouter` 로 바꾸는 방법)
+
+## 글꼴
+
+본문은 [Pretendard](https://github.com/orioncactus/pretendard)(SIL OFL 1.1)를 쓴다.
+`public/fonts/pretendard/` 에 함께 두었다 — CDN 을 쓰지 않는 이유는 로컬 노드를
+보는 도구가 바깥 네트워크에 매달릴 이유가 없기 때문이다(지갑은 아예 오프라인에서도
+떠야 한다).
+
+동적 서브셋판이라 파일이 92개지만 브라우저는 `unicode-range` 를 보고 화면에
+실제로 쓰인 글자가 든 조각만 내려받는다 — 홈 화면 기준 **8개 259KB**
+(전부 받는 판은 2MB). 파일을 못 읽어도 `font-display: swap` 과 뒤따르는
+시스템 글꼴 목록이 있어 글자는 먼저 보인다.
