@@ -50,11 +50,15 @@ REACT_APP_API_URL=http://localhost:4001 REACT_APP_WS_URL=ws://localhost:4001 yar
 | 경로 | |
 |---|---|
 | `/` | 요약 통계 + 최근 블록/트랜잭션 |
-| `/blocks` | 블록 목록 (페이지네이션) |
-| `/transactions` | 트랜잭션 목록 |
-| `/block/:hash` | 블록 상세 — 머클 루트, nonce, 담긴 트랜잭션 |
+| `/blocks` · `/transactions` | 목록 (페이지네이션) |
+| `/block/:hash` · `/height/:n` | 블록 상세 — 머클 루트, nonce, 담긴 트랜잭션 |
 | `/tx/:id` | 트랜잭션 상세 — 입출력, **머클 증명** |
 | `/address/:address` | 주소 잔액, 미사용 출력, **트랜잭션 내역** |
+| `/charts` | 난이도·블록 간격·블록당 트랜잭션 수 (CSV 내려받기) |
+| `/richlist` | 잔액 상위 주소 순위 (CSV 내려받기) |
+| `/network` | 피어, 권장 수수료, 노드 정보 |
+| `/broadcast` | raw 트랜잭션 제출 |
+| `/api` | 이 노드의 REST·JSON-RPC 목록 |
 
 목록의 행을 누르면 상세로 간다. 헤더의 검색창에 **블록 높이 · 64자 해시 ·
 주소** 중 아무거나 넣으면 노드가 판별해 알맞은 페이지로 보낸다.
